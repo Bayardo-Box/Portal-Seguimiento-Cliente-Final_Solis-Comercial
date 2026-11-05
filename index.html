@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Portal de Ventas en Tienda · Solís Comercial</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  if (window.tailwind) tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+        colors: {
+          brand: { 50: '#fdf2f2', 100: '#fbe6e5', 200: '#f6c9c7', 500: '#e0262d', 600: '#c8161d', 700: '#a51118', 900: '#4f0a0d' }
+        }
+      }
+    }
+  };
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  body { font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  .tab-btn[aria-selected="true"] { background: #c8161d; color: #fff; border-color: #c8161d; }
+  .chip[aria-pressed="true"] { background: #c8161d; color: #fff; border-color: #c8161d; }
+  .lbl { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: #64748b; margin-bottom: 4px; }
+  .ctl { width: 100%; padding: 10px 12px; font-size: 15px; border-radius: 8px; border: 1px solid #cbd5e1; background: #fff; }
+  .ctl:focus { outline: none; border-color: #c8161d; box-shadow: 0 0 0 3px #fbe6e5; }
+  .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; }
+  .fade-in { animation: fade .2s ease-out; }
+  @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .fade-in { animation: none; } }
+  .scroll-thin::-webkit-scrollbar { height: 8px; width: 8px; }
+  .scroll-thin::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+</style>
+</head>
+<body class="bg-slate-100 text-slate-800 antialiased">
+
+<script>
+/* =====================================================================
+   portalData — ÚNICA FUENTE DE DATOS DEL PORTAL
+   ---------------------------------------------------------------------
+   Para actualizar el portal solo hay que editar este objeto.
+   - config.liveEndpoint: URL de un JSON con la MISMA forma (parcial) que
+     este objeto. Si se configura, el portal lo descarga al abrir y cada
+     config.refreshMinutes, y sus valores reemplazan a los de aquí.
+     Ejemplo: "/api/portal-data" (Cloudflare Pages Function que lee Zoho).
+   - Campos marcados con `porConfirmar: true` son valores de referencia
+     que Operaciones debe validar antes de usarlos con clientes.
+   - No incluir costos ni precios mínimos: este archivo es público en
+     Cloudflare Pages a menos que se proteja con Cloudflare Access.
+   ===================================================================== */
+const portalData = {
+  meta: {
+    empresa: 'Solís Comercial',
+    eslogan: '¡A tu servicio, siempre!',
+    periodo: 'Noviembre 2026',
+    moneda: 'USD'
+  },
+
+  config: {
+    liveEndpoint: '',      // p. ej. '/api/portal-data'
+    refreshMinutes: 5
+  },
+
+  /* ---------- Presupuesto mensual (Plan de Ventas Noviembre 2026) ---------- */
+  presupuesto: {
+    metaMensual: 430000,
+    // Peso de cada día dentro del mes (35% primera quincena, 65% segunda;
+    // por semana según nov-2025 y por día según oct-2026). Suma = 1.
+    pesosDiarios: {
+      '2026-11-02': 0.030356, '2026-11-03': 0.042895, '2026-11-04': 0.024517, '2026-11-05': 0.034990,
+      '2026-11-06': 0.026122, '2026-11-07': 0.041752, '2026-11-09': 0.022599, '2026-11-10': 0.031935,
+      '2026-11-11': 0.018253, '2026-11-12': 0.026050, '2026-11-13': 0.019448, '2026-11-14': 0.031084,
+      '2026-11-16': 0.033002, '2026-11-17': 0.046635, '2026-11-18': 0.026655, '2026-11-19': 0.038041,
+      '2026-11-20': 0.028400, '2026-11-21': 0.045392, '2026-11-23': 0.056008, '2026-11-24': 0.079144,
+      '2026-11-25': 0.045236, '2026-11-26': 0.064559, '2026-11-27': 0.048197, '2026-11-28': 0.077035,
+      '2026-11-30': 0.061697
+    },
+    ejecutivos: [
+      { nombre: 'Ana Molina',          sucursal: 'Los Robles', division: 'Senior',              plan: 64200 },
+      { nombre: 'David Betancourt',    sucursal: 'Los Robles', division: 'Junior',              plan: 56200 },
+      { nombre: 'Deyling Villanueva',  sucursal: 'Los Robles', division: 'Junior',              plan: 56200 },
+      { nombre: 'Jassuara Huembes',    sucursal: 'Los Robles', division: 'Junior',              plan: 56200 },
+      { nombre: 'Nahum Estrada',       sucursal: 'Los Robles', division: 'Junior',              plan: 56200 },
+      { nombre: 'Brandon Hernández',   sucursal: 'Los Robles', division: 'Junior',              plan: 56200 },
+      { nombre: 'Atención al Cliente', sucursal: 'Los Robles', division: 'Atención al Cliente', plan: 34800 },
+      { nombre: 'Michelle Paladino',   sucursal: 'Ari Store',  division: 'Junior',              plan: 25000 },
+      { nombre: 'Angie Aguirre',       sucursal: 'El Mayoreo', division: 'Junior',              plan: 25000 }
+    ]
+  },
+
+  /* ---------- Ventas reales (Zoho Books) ---------- */
+  ventas: {
+    corte: '2026-11-05T10:40:00-06:00',
+    fuente: 'Zoho Books · facturas del 1 al 30 nov 2026, sin anuladas ni borradores',
+    facturadoMes: 219105.55,
+    numeroFacturas: 250,
+    // 'organizacion' = todas las sucursales y canales (incluye Mayorista).
+    // 'plan'        = solo los ejecutivos del plan de $430K.
+    alcance: 'organizacion',
+    // Venta real por ejecutivo: { 'Ana Molina': 12345.67, ... }
+    // Vacío = se muestra "—" hasta que el endpoint en vivo lo envíe.
+    porEjecutivo: {}
+  },
+
+  /* ---------- Catálogo (precios de lista de Zoho Books) ---------- */
+  catalogo: [
+    {
+      id: 'ip17-256', marca: 'Apple', modelo: 'iPhone 17', variante: '256GB · eSIM', categoria: 'Celulares',
+      estado: 'Nuevo', precio: 1029, garantia: '12 meses', sku: '195950642834',
+      colores: ['Lavender', 'Green', 'Black', 'White'],
+      specs: { pantalla: '6.3" ProMotion 120 Hz', chip: 'A19', camaras: '48 MP Fusion + 48 MP ultra gran angular', frontal: '18 MP Center Stage', almacenamiento: '256 GB', red: '5G · solo eSIM' },
+      tags: ['iphone', 'apple', 'ios', 'gama alta']
+    },
+    {
+      id: 'ip17pro-256', marca: 'Apple', modelo: 'iPhone 17 Pro', variante: '256GB · eSIM', categoria: 'Celulares',
+      estado: 'Nuevo', precio: 1409, garantia: '12 meses', sku: '195950626179',
+      colores: ['Orange'],
+      specs: { pantalla: '6.3" ProMotion 120 Hz', chip: 'A19 Pro', camaras: 'Triple 48 MP (gran angular, ultra gran angular, teleobjetivo 4x)', frontal: '18 MP Center Stage', almacenamiento: '256 GB', red: '5G · solo eSIM' },
+      tags: ['iphone', 'apple', 'ios', 'pro', 'premium']
+    },
+    {
+      id: 'ip17pm-256', marca: 'Apple', modelo: 'iPhone 17 Pro Max', variante: '256GB · 1 SIM', categoria: 'Celulares',
+      estado: 'Nuevo', precio: 1549, garantia: '12 meses', sku: '195950638721',
+      colores: ['Silver'],
+      specs: { pantalla: '6.9" ProMotion 120 Hz', chip: 'A19 Pro', camaras: 'Triple 48 MP (gran angular, ultra gran angular, teleobjetivo 4x)', frontal: '18 MP Center Stage', almacenamiento: '256 GB', red: '5G · SIM física + eSIM' },
+      tags: ['iphone', 'apple', 'ios', 'pro max', 'premium', 'pantalla grande']
+    },
+    {
+      id: 's25-256', marca: 'Samsung', modelo: 'Galaxy S25 5G', variante: '256GB · 12GB RAM · Dual SIM', categoria: 'Celulares',
+      estado: 'Nuevo', precio: 709, garantia: '24 meses', sku: '8806095877624',
+      colores: ['Navy', 'Mint', 'Silver Shadow', 'Icy Blue'],
+      specs: { pantalla: '6.2" AMOLED 120 Hz', chip: 'Snapdragon 8 Elite for Galaxy', camaras: '50 MP + 12 MP ultra gran angular + 10 MP tele 3x', frontal: '12 MP', almacenamiento: '256 GB · 12 GB RAM', red: '5G · Dual SIM' },
+      tags: ['samsung', 'android', 'galaxy', 'compacto']
+    },
+    {
+      id: 's25u-1tb', marca: 'Samsung', modelo: 'Galaxy S25 Ultra 5G', variante: '1TB · 12GB RAM · Dual SIM', categoria: 'Celulares',
+      estado: 'Nuevo', precio: null, garantia: 'Consultar', sku: '8806095882222',
+      colores: ['Silverblue'],
+      specs: { pantalla: '6.9" AMOLED 120 Hz', chip: 'Snapdragon 8 Elite for Galaxy', camaras: '200 MP + 50 MP ultra gran angular + 50 MP tele 5x + 10 MP tele 3x', frontal: '12 MP', almacenamiento: '1 TB · 12 GB RAM', red: '5G · Dual SIM · S Pen' },
+      tags: ['samsung', 'android', 'galaxy', 'ultra', 'premium', 's pen']
+    },
+    {
+      id: 'cover-17pm-mgs', marca: 'Genérico', modelo: 'Cover iPhone 17 Pro Max MagSafe', variante: 'Accesorio', categoria: 'Accesorios',
+      estado: 'Nuevo', precio: null, garantia: '—', sku: 'CC-IP17PMMGS',
+      colores: [], specs: {}, tags: ['cover', 'case', 'magsafe', 'accesorio', 'iphone 17 pro max']
+    },
+    {
+      id: 'case-prodigee-s25u', marca: 'Prodigee', modelo: 'Case Prodigee Galaxy S25 Ultra', variante: 'Accesorio', categoria: 'Accesorios',
+      estado: 'Nuevo', precio: null, garantia: '—', sku: '810023958079',
+      colores: [], specs: {}, tags: ['case', 'prodigee', 'accesorio', 'galaxy s25 ultra']
+    }
+  ],
+  etiquetasSpecs: { pantalla: 'Pantalla', chip: 'Procesador', camaras: 'Cámaras traseras', frontal: 'Cámara frontal', almacenamiento: 'Memoria', red: 'Red / SIM' },
+
+  /* ---------- Playbooks de venta en piso ---------- */
+  playbooks: [
+    {
+      id: 'pb-bienvenida', titulo: 'Recibimiento y diagnóstico (primeros 2 minutos)', categoria: 'Atención',
+      pasos: [
+        'Saludar en los primeros 10 segundos y presentarse por nombre.',
+        'Preguntar: ¿qué equipo usa hoy y qué es lo que más le molesta de él?',
+        'Confirmar presupuesto aproximado y si piensa entregar su equipo actual (Trade-In).',
+        'Registrar al cliente en Zoho CRM antes de cotizar.'
+      ],
+      tags: ['saludo', 'diagnóstico', 'crm']
+    },
+    {
+      id: 'pb-tradein', titulo: 'Venta con Trade-In / Cash Back', categoria: 'Trade-In',
+      pasos: [
+        'Revisar el equipo frente al cliente: estética, pantalla, Face ID/huella, batería.',
+        'Confirmar que iCloud / cuenta Google esté desvinculada (FRP). Si no, no se recibe.',
+        'Calcular la valoración en el módulo Trade-In y aplicarla a la cotización.',
+        'Registrar el Cash Back en Zoho CRM con marca, modelo, IMEI y valoración.',
+        'Entregar el equipo recibido a caja y luego a operaciones, según el estatus del registro.'
+      ],
+      tags: ['cashback', 'canje', 'imei', 'crm']
+    },
+    {
+      id: 'pb-cierre', titulo: 'Cierre y venta cruzada', categoria: 'Cierre',
+      pasos: [
+        'Resumir los 3 beneficios que el cliente dijo que le importan.',
+        'Proponer el paquete: equipo + cover + vidrio templado + cargador.',
+        'Preguntar directo: “¿Lo dejamos listo hoy?”',
+        'Facturar en Zoho Books con su nombre como vendedor para que cuente en su meta.'
+      ],
+      tags: ['cierre', 'accesorios', 'venta cruzada', 'factura']
+    },
+    {
+      id: 'pb-winback', titulo: 'Recontacto de clientes (Win-Back)', categoria: 'Postventa',
+      pasos: [
+        'Abrir la lista de clientes inactivos asignados en el tablero de Recontacto.',
+        'Llamar o escribir por WhatsApp con una razón concreta: nuevo modelo, Trade-In o promoción.',
+        'Actualizar el estatus de gestión en Zoho CRM el mismo día.',
+        'Agendar visita a tienda con fecha y hora.'
+      ],
+      tags: ['recontacto', 'win-back', 'whatsapp', 'crm']
+    }
+  ],
+
+  /* ---------- Políticas de comisiones (POR CONFIRMAR con Gerencia) ---------- */
+  comisiones: [
+    { id: 'com-base', titulo: 'Base de cálculo', detalle: 'La comisión se calcula sobre lo facturado en Zoho Books a nombre del vendedor, sin facturas anuladas.', porConfirmar: true, tags: ['comisión', 'base', 'zoho books'] },
+    { id: 'com-meta', titulo: 'Cumplimiento de meta mensual', detalle: 'Escalas por % de cumplimiento del plan individual (Senior $64,200 · Junior $56,200 · Ari Store / El Mayoreo $25,000). Definir porcentaje por escala.', porConfirmar: true, tags: ['comisión', 'meta', 'escala'] },
+    { id: 'com-acc', titulo: 'Accesorios y venta cruzada', detalle: 'Incentivo adicional por accesorios vendidos junto con un equipo. Definir monto o porcentaje.', porConfirmar: true, tags: ['comisión', 'accesorios'] },
+    { id: 'com-tradein', titulo: 'Equipos recibidos en Trade-In', detalle: 'La valoración del equipo recibido no cuenta como venta; la venta es el total facturado del equipo nuevo.', porConfirmar: true, tags: ['comisión', 'trade-in', 'cashback'] }
+  ],
+
+  /* ---------- Políticas comerciales ---------- */
+  politicas: [
+    { id: 'pol-garantia', titulo: 'Garantía', detalle: 'Equipos nuevos: según la ficha del artículo en Zoho Books (Apple 12 meses, Samsung 24 meses en el catálogo actual). Usados: según ficha (p. ej. 3 meses).', tags: ['garantía', 'política'] },
+    { id: 'pol-frp', titulo: 'Recepción de equipos usados', detalle: 'No se recibe ningún equipo con iCloud, cuenta Google (FRP) o reporte de robo activo.', tags: ['trade-in', 'icloud', 'frp', 'política'] },
+    { id: 'pol-delivery', titulo: 'Delivery', detalle: 'Marcar “Solicitud de Delivery = SI” en la factura de Zoho Books para que logística lo asigne.', tags: ['delivery', 'factura', 'política'] }
+  ],
+
+  /* ---------- Financiamiento / cuotas (POR CONFIRMAR) ---------- */
+  financiamiento: {
+    porConfirmar: true,
+    planes: [
+      { id: 'contado', nombre: 'Contado',                meses: 1,  recargoPct: 0,  primaMinPct: 0 },
+      { id: 'tc-3',    nombre: 'Tarjeta 3 meses',        meses: 3,  recargoPct: 0,  primaMinPct: 0 },
+      { id: 'tc-6',    nombre: 'Tarjeta 6 meses',        meses: 6,  recargoPct: 0,  primaMinPct: 0 },
+      { id: 'tc-12',   nombre: 'Tarjeta 12 meses',       meses: 12, recargoPct: 6,  primaMinPct: 0 },
+      { id: 'cred-12', nombre: 'Crédito tienda 12 meses', meses: 12, recargoPct: 18, primaMinPct: 20 }
+    ],
+    descuentoMaxPct: 5
+  },
+
+  /* ---------- Trade-In / Cash Back (valores de referencia POR CONFIRMAR) ---------- */
+  tradeIn: {
+    porConfirmar: true,
+    // Valor máximo de recepción en USD por modelo, en condición A y batería ≥ 90%.
+    valoresBase: [
+      { modelo: 'iPhone 16 Pro Max', valor: 750 },
+      { modelo: 'iPhone 16 Pro',     valor: 650 },
+      { modelo: 'iPhone 16',         valor: 480 },
+      { modelo: 'iPhone 15 Pro Max', valor: 600 },
+      { modelo: 'iPhone 15 Pro',     valor: 500 },
+      { modelo: 'iPhone 15',         valor: 380 },
+      { modelo: 'iPhone 14 Pro Max', valor: 450 },
+      { modelo: 'iPhone 14',         valor: 280 },
+      { modelo: 'iPhone 13',         valor: 200 },
+      { modelo: 'Galaxy S24 Ultra',  valor: 480 },
+      { modelo: 'Galaxy S24',        valor: 300 },
+      { modelo: 'Galaxy S23 Ultra',  valor: 330 }
+    ],
+    condiciones: [
+      { id: 'A', nombre: 'A · Como nuevo',  detalle: 'Sin rayones visibles',              factor: 1.00 },
+      { id: 'B', nombre: 'B · Muy bueno',   detalle: 'Rayones leves en marco o vidrio',    factor: 0.88 },
+      { id: 'C', nombre: 'C · Bueno',       detalle: 'Rayones notorios, golpes leves',     factor: 0.72 },
+      { id: 'D', nombre: 'D · Regular',     detalle: 'Golpes fuertes, desgaste marcado',   factor: 0.50 }
+    ],
+    bateria: [
+      { min: 90, factor: 1.00 },
+      { min: 85, factor: 0.95 },
+      { min: 80, factor: 0.90 },
+      { min: 0,  factor: 0.80 }
+    ],
+    deducciones: [
+      { id: 'pantalla', nombre: 'Pantalla quebrada o con manchas', pct: 35 },
+      { id: 'faceid',   nombre: 'Face ID / huella no funciona',    pct: 25 },
+      { id: 'tapa',     nombre: 'Tapa trasera quebrada',           pct: 15 },
+      { id: 'caja',     nombre: 'Sin caja ni cargador',            pct: 3 }
+    ],
+    rangoPct: 5,
+    bloqueantes: ['iCloud / cuenta Google activa (FRP)', 'IMEI reportado o bloqueado', 'Equipo no enciende']
+  },
+
+  /* ---------- Matriz anti-objeciones ---------- */
+  objeciones: [
+    { id: 'ob-caro', categoria: 'Precio', objecion: 'Está muy caro.',
+      respuesta: 'Entiendo. Veamos cuánto le reconocemos por su equipo actual y cómo queda en cuotas: muchas veces la diferencia mensual es menor de lo que parece.',
+      siguientePaso: 'Abrir Trade-In y luego el Cotizador con cuotas.' },
+    { id: 'ob-online', categoria: 'Precio', objecion: 'En línea lo vi más barato.',
+      respuesta: 'Aquí lo recibe hoy, con factura, garantía local y soporte en tienda. Si sale con falla, no tiene que mandarlo fuera del país.',
+      siguientePaso: 'Mostrar la garantía de la ficha y ofrecer accesorio en paquete.' },
+    { id: 'ob-pensar', categoria: 'Indecisión', objecion: 'Lo voy a pensar.',
+      respuesta: 'Claro. ¿Qué es lo que le gustaría pensar: el modelo, el precio o la forma de pago? Así le dejo la información exacta.',
+      siguientePaso: 'Enviar la cotización por WhatsApp y registrar seguimiento en CRM.' },
+    { id: 'ob-esposo', categoria: 'Indecisión', objecion: 'Tengo que consultarlo con mi pareja.',
+      respuesta: 'Perfecto. Le preparo el resumen con precio, cuotas y valor de su equipo para que lo revisen juntos. ¿Le parece si le escribo mañana?',
+      siguientePaso: 'Copiar la cotización y agendar recontacto.' },
+    { id: 'ob-bateria', categoria: 'Producto', objecion: 'Mi teléfono todavía funciona.',
+      respuesta: 'Qué bueno, eso hace que hoy valga más en Trade-In. Si espera, el valor de recepción baja cada mes.',
+      siguientePaso: 'Valorar el equipo actual en el módulo Trade-In.' },
+    { id: 'ob-android', categoria: 'Producto', objecion: '¿iPhone o Samsung? No sé cuál.',
+      respuesta: 'Depende de lo que más use: si ya tiene Mac, iPad o AirPods, iPhone le integra todo; si quiere más memoria por el precio o Dual SIM, Galaxy es muy fuerte.',
+      siguientePaso: 'Abrir el Comparador con los dos modelos.' },
+    { id: 'ob-garantia', categoria: 'Confianza', objecion: '¿Y si sale malo?',
+      respuesta: 'Tiene garantía en tienda según el equipo (Apple 12 meses, Samsung 24 meses en estos modelos). Usted viene aquí y nosotros lo gestionamos.',
+      siguientePaso: 'Indicar la garantía exacta de la ficha del producto.' },
+    { id: 'ob-usado', categoria: 'Confianza', objecion: '¿Cuánto me dan por mi equipo? Me parece poco.',
+      respuesta: 'La valoración depende de estado, batería y modelo; se la explico punto por punto. Además, el monto se aplica directo hoy, sin tener que venderlo usted.',
+      siguientePaso: 'Mostrar el desglose de la valoración en pantalla.' }
+  ],
+
+  /* ---------- Accesos internos ---------- */
+  enlaces: [
+    { titulo: 'Plan de Ventas Noviembre 2026', url: 'https://claude.ai/artifact/XDe8RRdE611GQiy6rTqaft', detalle: 'Cuotas diarias por ejecutivo' },
+    { titulo: 'Dashboard de Ventas',           url: 'https://claude.ai/artifact/2aAKwSKwageVUqk67G1VKZ', detalle: 'Ventas por mes y ejecutivo' },
+    { titulo: 'Recontacto de Clientes',        url: 'https://claude.ai/artifact/3hYGc15NWePqJ8qU1b4nc7', detalle: 'Clientes inactivos y potenciales' },
+    { titulo: 'Cashback / Trade-in',           url: 'https://claude.ai/artifact/E6CLGwLyLM57kygT1GU1iG', detalle: 'Registros de Cash Back en CRM' }
+  ]
+};
+</script>
+
+<!-- ============================ ENCABEZADO ============================ -->
+<header class="bg-white border-b-4 border-brand-600">
+  <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+    <div class="flex items-center gap-3">
+      <div class="w-11 h-11 rounded-xl bg-brand-600 text-white grid place-items-center font-extrabold text-lg" aria-hidden="true">SC</div>
+      <div>
+        <div class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Portal de piso de venta</div>
+        <h1 class="text-lg sm:text-xl font-extrabold text-slate-900 leading-tight"><span data-bind="empresa"></span> · <span data-bind="periodo"></span></h1>
+      </div>
+    </div>
+    <div class="flex items-center gap-2 text-sm">
+      <span id="liveBadge" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 text-slate-600">
+        <span id="liveDot" class="w-2 h-2 rounded-full bg-amber-400"></span><span id="liveText">Datos del archivo</span>
+      </span>
+      <button id="btnRefresh" class="px-3 py-1.5 rounded-lg border border-slate-300 hover:bg-slate-50 font-semibold">Actualizar</button>
+    </div>
+  </div>
+  <nav class="max-w-7xl mx-auto px-4 pb-3 flex gap-2 overflow-x-auto scroll-thin" role="tablist" aria-label="Secciones">
+    <button class="tab-btn shrink-0 px-4 py-2 rounded-lg border border-slate-300 bg-white text-sm font-semibold" role="tab" data-tab="dashboard" aria-selected="true">📊 Metas</button>
+    <button class="tab-btn shrink-0 px-4 py-2 rounded-lg border border-slate-300 bg-white text-sm font-semibold" role="tab" data-tab="buscador" aria-selected="false">🔎 Buscador</button>
+    <button class="tab-btn shrink-0 px-4 py-2 rounded-lg border border-slate-300 bg-white text-sm font-semibold" role="tab" data-tab="comparador" aria-selected="false">⚖️ Comparador</button>
+    <button class="tab-btn shrink-0 px-4 py-2 rounded-lg border border-slate-300 bg-white text-sm font-semibold" role="tab" data-tab="cotizador" aria-selected="false">🧾 Cotizador</button>
+    <button class="tab-btn shrink-0 px-4 py-2 rounded-lg border border-slate-300 bg-white text-sm font-semibold" role="tab" data-tab="tradein" aria-selected="false">🔄 Trade-In</button>
+    <button class="tab-btn shrink-0 px-4 py-2 rounded-lg border border-slate-300 bg-white text-sm font-semibold" role="tab" data-tab="objeciones" aria-selected="false">💬 Objeciones</button>
+  </nav>
+</header>
+
+<main class="max-w-7xl mx-auto px-4 py-5">
+
+  <!-- ============================ 1. DASHBOARD ============================ -->
+  <section id="tab-dashboard" class="tab-panel space-y-5 fade-in" role="tabpanel">
+    <div id="scopeWarn" class="hidden rounded-xl border border-amber-300 bg-amber-50 text-amber-900 px-4 py-3 text-sm"></div>
+
+    <div id="kpis" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4"></div>
+
+    <div class="card p-5">
+      <div class="flex flex-wrap items-baseline justify-between gap-2 mb-3">
+        <h2 class="font-bold text-slate-900">Avance contra la meta del mes</h2>
+        <span id="progressLegend" class="text-xs text-slate-500"></span>
+      </div>
+      <div class="relative h-6 rounded-full bg-slate-100 overflow-hidden" aria-hidden="true">
+        <div id="progressBar" class="h-full bg-brand-600 rounded-full transition-all" style="width:0%"></div>
+        <div id="progressExpected" class="absolute top-0 bottom-0 w-0.5 bg-slate-900" style="left:0%"></div>
+      </div>
+      <div class="flex justify-between text-xs text-slate-500 mt-2 tabular"><span>$0</span><span id="progressMax"></span></div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      <div class="card p-5 lg:col-span-2">
+        <div class="flex flex-wrap items-baseline justify-between gap-2 mb-3">
+          <h2 class="font-bold text-slate-900">Plan por ejecutivo</h2>
+          <span class="text-xs text-slate-500">Esperado = plan acumulado al día de corte</span>
+        </div>
+        <div class="overflow-x-auto scroll-thin">
+          <table class="w-full text-sm tabular">
+            <thead class="text-[11px] uppercase tracking-wide text-slate-500 border-b border-slate-200">
+              <tr><th class="text-left py-2 pr-2">Ejecutivo</th><th class="text-left py-2 pr-2">Sucursal</th><th class="text-right py-2 pr-2">Plan mes</th><th class="text-right py-2 pr-2">Esperado</th><th class="text-right py-2 pr-2">Real</th><th class="text-right py-2">Cumpl.</th></tr>
+            </thead>
+            <tbody id="execBody" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card p-5">
+        <h2 class="font-bold text-slate-900 mb-3">Herramientas internas</h2>
+        <ul id="linksList" class="space-y-2"></ul>
+        <p class="text-xs text-slate-500 mt-3">Se abren en Claude con la cuenta del equipo.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ 2. BUSCADOR ============================ -->
+  <section id="tab-buscador" class="tab-panel hidden space-y-4" role="tabpanel">
+    <div class="card p-4 space-y-3">
+      <label class="lbl" for="q">Buscar en catálogo, playbooks, comisiones y políticas</label>
+      <input id="q" type="search" class="ctl text-lg" placeholder="Ej.: iPhone 17, garantía, icloud, comisión…" autocomplete="off" />
+      <div class="flex flex-wrap gap-2" id="typeChips"></div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+        <div><label class="lbl" for="fMarca">Marca</label><select id="fMarca" class="ctl"></select></div>
+        <div><label class="lbl" for="fPrecioMax">Precio máx. (USD)</label><input id="fPrecioMax" type="number" min="0" step="50" class="ctl" placeholder="Sin límite" /></div>
+        <div><label class="lbl" for="fOrden">Ordenar</label>
+          <select id="fOrden" class="ctl"><option value="rel">Relevancia</option><option value="pAsc">Precio ↑</option><option value="pDesc">Precio ↓</option><option value="az">A–Z</option></select></div>
+        <div class="flex items-end"><button id="btnClear" class="w-full px-3 py-2.5 rounded-lg border border-slate-300 hover:bg-slate-50 font-semibold">Limpiar</button></div>
+      </div>
+    </div>
+    <div id="resultInfo" class="text-sm text-slate-500"></div>
+    <div id="results" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+  </section>
+
+  <!-- ============================ 3. COMPARADOR ============================ -->
+  <section id="tab-comparador" class="tab-panel hidden space-y-4" role="tabpanel">
+    <div class="card p-4">
+      <h2 class="font-bold text-slate-900 mb-3">Comparador rápido de modelos</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3" id="cmpSelects"></div>
+    </div>
+    <div class="card p-4 overflow-x-auto scroll-thin"><table class="w-full text-sm" id="cmpTable"></table></div>
+    <p class="text-xs text-slate-500">Precios de lista de Zoho Books. Especificaciones de referencia del fabricante; confirmar con la caja del equipo.</p>
+  </section>
+
+  <!-- ============================ 4. COTIZADOR ============================ -->
+  <section id="tab-cotizador" class="tab-panel hidden" role="tabpanel">
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-5">
+      <div class="card p-5 lg:col-span-3 space-y-4">
+        <h2 class="font-bold text-slate-900">Simulador de cotización y cuotas</h2>
+        <div id="finWarn" class="hidden rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-xs px-3 py-2"></div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div class="sm:col-span-2"><label class="lbl" for="qProd">Producto</label><select id="qProd" class="ctl"></select></div>
+          <div><label class="lbl" for="qPrecio">Precio unitario (USD)</label><input id="qPrecio" type="number" min="0" step="1" class="ctl tabular" /></div>
+          <div><label class="lbl" for="qCant">Cantidad</label><input id="qCant" type="number" min="1" step="1" value="1" class="ctl tabular" /></div>
+          <div><label class="lbl" for="qAcc">Accesorios (USD)</label><input id="qAcc" type="number" min="0" step="1" value="0" class="ctl tabular" /></div>
+          <div><label class="lbl" for="qDesc">Descuento (%)</label><input id="qDesc" type="number" min="0" step="0.5" value="0" class="ctl tabular" /></div>
+          <div><label class="lbl" for="qTrade">Crédito Trade-In (USD)</label><input id="qTrade" type="number" min="0" step="1" value="0" class="ctl tabular" /></div>
+          <div><label class="lbl" for="qPlan">Forma de pago</label><select id="qPlan" class="ctl"></select></div>
+          <div><label class="lbl" for="qPrima">Prima (%)</label><input id="qPrima" type="number" min="0" max="100" step="5" value="0" class="ctl tabular" /></div>
+          <div><label class="lbl" for="qCliente">Cliente (opcional)</label><input id="qCliente" type="text" class="ctl" placeholder="Nombre del cliente" /></div>
+        </div>
+      </div>
+      <div class="card p-5 lg:col-span-2 space-y-3">
+        <h3 class="font-bold text-slate-900">Resumen</h3>
+        <dl id="qSummary" class="text-sm tabular space-y-1.5"></dl>
+        <div class="rounded-xl bg-brand-600 text-white p-4">
+          <div class="text-xs uppercase tracking-wider opacity-80" id="qCuotaLbl">Cuota mensual</div>
+          <div class="text-3xl font-extrabold tabular" id="qCuota">$0.00</div>
+          <div class="text-xs opacity-80 mt-1" id="qCuotaSub"></div>
+        </div>
+        <div id="qAlert" class="hidden text-sm rounded-lg px-3 py-2 bg-red-50 text-red-800 border border-red-200"></div>
+        <button id="btnCopyQuote" class="w-full px-3 py-2.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-semibold">Copiar cotización para WhatsApp</button>
+        <span id="copyOk" class="hidden text-xs text-emerald-700">Copiado ✓</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ 5. TRADE-IN ============================ -->
+  <section id="tab-tradein" class="tab-panel hidden" role="tabpanel">
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-5">
+      <div class="card p-5 lg:col-span-3 space-y-4">
+        <h2 class="font-bold text-slate-900">Evaluación de Trade-In / Canje</h2>
+        <div id="tiWarn" class="hidden rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-xs px-3 py-2"></div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div><label class="lbl" for="tiModelo">Modelo recibido</label><select id="tiModelo" class="ctl"></select></div>
+          <div><label class="lbl" for="tiBat">Salud de batería (%)</label><input id="tiBat" type="number" min="0" max="100" value="90" class="ctl tabular" /></div>
+        </div>
+        <div>
+          <span class="lbl">Condición estética</span>
+          <div id="tiCond" class="grid grid-cols-2 md:grid-cols-4 gap-2"></div>
+        </div>
+        <div>
+          <span class="lbl">Fallas y faltantes</span>
+          <div id="tiDed" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+        </div>
+        <div>
+          <span class="lbl">Bloqueantes (si aplica alguno, no se recibe)</span>
+          <div id="tiBlock" class="grid grid-cols-1 sm:grid-cols-3 gap-2"></div>
+        </div>
+      </div>
+      <div class="card p-5 lg:col-span-2 space-y-3">
+        <h3 class="font-bold text-slate-900">Valoración estimada</h3>
+        <div id="tiResultBox" class="rounded-xl bg-slate-900 text-white p-4">
+          <div class="text-xs uppercase tracking-wider opacity-70">Rango a ofrecer</div>
+          <div class="text-3xl font-extrabold tabular" id="tiValor">—</div>
+          <div class="text-xs opacity-70 mt-1" id="tiSub"></div>
+        </div>
+        <dl id="tiBreak" class="text-sm tabular space-y-1.5"></dl>
+        <button id="btnApplyTrade" class="w-full px-3 py-2.5 rounded-lg bg-brand-600 hover:bg-brand-700 text-white font-semibold">Aplicar al Cotizador</button>
+        <p class="text-xs text-slate-500">Registrar el Cash Back en Zoho CRM con marca, modelo, IMEI y valoración final.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ 6. OBJECIONES ============================ -->
+  <section id="tab-objeciones" class="tab-panel hidden space-y-4" role="tabpanel">
+    <div class="card p-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div class="md:col-span-2"><label class="lbl" for="obQ">¿Qué dijo el cliente?</label><input id="obQ" type="search" class="ctl" placeholder="Ej.: caro, pensar, garantía…" /></div>
+      <div><label class="lbl" for="obCat">Categoría</label><select id="obCat" class="ctl"></select></div>
+    </div>
+    <div id="obList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+  </section>
+</main>
+
+<footer class="max-w-7xl mx-auto px-4 pb-8 text-xs text-slate-500" id="footer"></footer>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ============================== UTILIDADES ============================== */
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+  const fmt = (n, d = 0) => (n == null || isNaN(n)) ? '—'
+    : '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+  const pct = (n, d = 1) => (n == null || !isFinite(n)) ? '—' : (n * 100).toFixed(d) + '%';
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  const num = el => { const v = parseFloat(el.value); return isNaN(v) ? 0 : v; };
+
+  function deepMerge(target, src) {
+    for (const k in src) {
+      if (src[k] && typeof src[k] === 'object' && !Array.isArray(src[k]) && target[k] && typeof target[k] === 'object' && !Array.isArray(target[k])) {
+        deepMerge(target[k], src[k]);
+      } else {
+        target[k] = src[k];
+      }
+    }
+    return target;
+  }
+
+  function copyText(text, okEl) {
+    const done = () => { if (okEl) { okEl.classList.remove('hidden'); setTimeout(() => okEl.classList.add('hidden'), 1800); } };
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(done).catch(() => fallback());
+    } else { fallback(); }
+    function fallback() {
+      const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); done(); } catch (e) {} ta.remove();
+    }
+  }
+
+  /* ============================== PESTAÑAS ============================== */
+  function showTab(name) {
+    $$('.tab-btn').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === name)));
+    $$('.tab-panel').forEach(p => p.classList.toggle('hidden', p.id !== 'tab-' + name));
+    const panel = $('#tab-' + name); if (panel) { panel.classList.remove('fade-in'); void panel.offsetWidth; panel.classList.add('fade-in'); }
+    try { history.replaceState(null, '', '#' + name); } catch (e) {}
+  }
+  $$('.tab-btn').forEach(b => b.addEventListener('click', () => showTab(b.dataset.tab)));
+
+  /* ============================== 1. DASHBOARD ============================== */
+  function corteDate() {
+    const d = new Date(portalData.ventas.corte);
+    return isNaN(d) ? new Date() : d;
+  }
+  function isoLocal(d) {
+    // Fecha calendario en America/Managua (UTC-6, sin horario de verano)
+    const t = new Date(d.getTime() - 6 * 3600 * 1000);
+    return t.toISOString().slice(0, 10);
+  }
+  function pesoAcumulado(hastaIso) {
+    let s = 0;
+    for (const [f, w] of Object.entries(portalData.presupuesto.pesosDiarios)) if (f <= hastaIso) s += w;
+    return Math.min(s, 1);
+  }
+  function diasRestantes(desdeIso) {
+    return Object.keys(portalData.presupuesto.pesosDiarios).filter(f => f > desdeIso).length;
+  }
+
+  function renderDashboard() {
+    const P = portalData.presupuesto, V = portalData.ventas;
+    const meta = P.metaMensual;
+    const corte = corteDate();
+    const corteIso = isoLocal(corte);
+    const pesoHoy = pesoAcumulado(corteIso);
+    const esperado = meta * pesoHoy;
+    const real = Number(V.facturadoMes) || 0;
+    const cumpl = meta ? real / meta : 0;
+    const ritmo = esperado ? real / esperado : null;
+    const falta = Math.max(meta - real, 0);
+    const dRest = diasRestantes(corteIso);
+    const porDia = dRest ? falta / dRest : 0;
+
+    let estado, estadoCls, estadoTxt;
+    if (V.alcance !== 'plan') { estado = 'Alcance organización'; estadoCls = 'bg-slate-100 text-slate-700'; estadoTxt = 'Incluye todas las sucursales: no comparable con el plan'; }
+    else if (ritmo == null) { estado = 'Sin plan a la fecha'; estadoCls = 'bg-slate-100 text-slate-700'; estadoTxt = ''; }
+    else if (ritmo >= 1) { estado = 'En meta'; estadoCls = 'bg-emerald-100 text-emerald-800'; estadoTxt = 'Por encima del plan acumulado'; }
+    else if (ritmo >= 0.9) { estado = 'En riesgo'; estadoCls = 'bg-amber-100 text-amber-800'; estadoTxt = 'Entre 90% y 100% del plan acumulado'; }
+    else { estado = 'Atrasado'; estadoCls = 'bg-red-100 text-red-800'; estadoTxt = 'Por debajo del 90% del plan acumulado'; }
+
+    const kpi = (titulo, valor, sub, extra = '') => `
+      <div class="card p-5 ${extra}">
+        <div class="text-[11px] uppercase tracking-wider font-semibold text-slate-500">${titulo}</div>
+        <div class="text-3xl font-extrabold text-slate-900 tabular mt-1">${valor}</div>
+        <div class="text-sm text-slate-500 mt-1">${sub}</div>
+      </div>`;
+
+    $('#kpis').innerHTML =
+      kpi('Presupuesto mensual', fmt(meta), `${P.ejecutivos.length} ejecutivos · ${portalData.meta.periodo}`) +
+      kpi('Facturado al corte', fmt(real, 2), `${V.numeroFacturas || '—'} facturas · corte ${corte.toLocaleString('es-NI', { timeZone: 'America/Managua', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}`, 'ring-2 ring-brand-100') +
+      kpi(V.alcance === 'plan' ? 'Cumplimiento' : 'Cumplimiento (referencial)', pct(cumpl), `Esperado a la fecha: ${fmt(esperado)} (${pct(pesoHoy)})`) +
+      `<div class="card p-5">
+        <div class="text-[11px] uppercase tracking-wider font-semibold text-slate-500">Estado general</div>
+        <div class="mt-2"><span class="inline-block px-3 py-1 rounded-full text-base font-bold ${estadoCls}">${estado}</span></div>
+        <div class="text-sm text-slate-500 mt-2">${estadoTxt}${ritmo != null && V.alcance === 'plan' ? ' · ritmo ' + pct(ritmo, 0) : ''}</div>
+        <div class="text-sm text-slate-700 mt-1 tabular">Faltan ${fmt(falta)} · ${dRest} días · ${fmt(porDia)}/día</div>
+      </div>`;
+
+    $('#progressBar').style.width = Math.min(cumpl * 100, 100) + '%';
+    $('#progressExpected').style.left = Math.min(pesoHoy * 100, 100) + '%';
+    $('#progressMax').textContent = fmt(meta);
+    $('#progressLegend').innerHTML = `<span class="inline-block w-3 h-3 rounded-sm bg-brand-600 align-middle mr-1"></span>Real ${pct(cumpl)} &nbsp; <span class="inline-block w-0.5 h-3 bg-slate-900 align-middle mr-1"></span>Esperado ${pct(pesoHoy)}`;
+
+    const warn = $('#scopeWarn');
+    if (V.alcance !== 'plan') {
+      warn.classList.remove('hidden');
+      warn.innerHTML = '<b>Ojo con el alcance:</b> el facturado incluye todas las sucursales y canales de la organización (también Mayorista), así que no es comparable 1 a 1 con el plan de $430K. Cuando el endpoint en vivo envíe la venta de los ejecutivos del plan (<code>alcance: "plan"</code>), este aviso desaparece.';
+    } else warn.classList.add('hidden');
+
+    const porEj = V.porEjecutivo || {};
+    $('#execBody').innerHTML = P.ejecutivos.map(e => {
+      const esp = e.plan * pesoHoy;
+      const r = porEj[e.nombre];
+      const c = (r != null && esp) ? r / esp : null;
+      const cls = c == null ? 'bg-slate-100 text-slate-500' : c >= 1 ? 'bg-emerald-100 text-emerald-800' : c >= 0.9 ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800';
+      return `<tr>
+        <td class="py-2 pr-2 font-semibold text-slate-900">${esc(e.nombre)}<div class="text-[11px] font-normal text-slate-500">${esc(e.division)}</div></td>
+        <td class="py-2 pr-2 text-slate-600">${esc(e.sucursal)}</td>
+        <td class="py-2 pr-2 text-right">${fmt(e.plan)}</td>
+        <td class="py-2 pr-2 text-right">${fmt(esp)}</td>
+        <td class="py-2 pr-2 text-right">${r != null ? fmt(r) : '—'}</td>
+        <td class="py-2 text-right"><span class="inline-block min-w-[56px] text-center px-2 py-0.5 rounded-full text-xs font-bold ${cls}">${c == null ? '—' : pct(c, 0)}</span></td>
+      </tr>`;
+    }).join('') + `<tr class="font-bold border-t-2 border-slate-300"><td class="py-2 pr-2" colspan="2">Total</td><td class="py-2 pr-2 text-right">${fmt(meta)}</td><td class="py-2 pr-2 text-right">${fmt(esperado)}</td><td class="py-2 pr-2 text-right">${Object.keys(porEj).length ? fmt(Object.values(porEj).reduce((a, b) => a + (Number(b) || 0), 0)) : '—'}</td><td></td></tr>`;
+
+    $('#linksList').innerHTML = portalData.enlaces.map(l => `
+      <li><a href="${esc(l.url)}" target="_blank" rel="noopener" class="block rounded-lg border border-slate-200 hover:border-brand-600 hover:bg-brand-50 px-3 py-2">
+        <div class="font-semibold text-slate-900 text-sm">${esc(l.titulo)} ↗</div><div class="text-xs text-slate-500">${esc(l.detalle)}</div></a></li>`).join('');
+
+    $('#footer').innerHTML = `Fuente de ventas: ${esc(V.fuente)}. Plan: Plan de Ventas ${esc(portalData.meta.periodo)}. Precios: lista de Zoho Books. ${esc(portalData.meta.empresa)} — ${esc(portalData.meta.eslogan)}`;
+  }
+
+  /* ============================== 2. BUSCADOR ============================== */
+  const TIPOS = [
+    { id: 'todos', label: 'Todo' },
+    { id: 'producto', label: 'Productos' },
+    { id: 'playbook', label: 'Playbooks' },
+    { id: 'comision', label: 'Comisiones' },
+    { id: 'politica', label: 'Políticas' }
+  ];
+  let tipoActivo = 'todos';
+  let indice = [];
+
+  function construirIndice() {
+    indice = [];
+    portalData.catalogo.forEach(p => indice.push({
+      tipo: 'producto', id: p.id, titulo: `${p.modelo}`, sub: `${p.marca} · ${p.variante}`, marca: p.marca, precio: p.precio, ref: p,
+      texto: norm([p.marca, p.modelo, p.variante, p.categoria, p.estado, p.sku, 'garantia ' + p.garantia, (p.colores || []).join(' '), Object.values(p.specs || {}).join(' '), (p.tags || []).join(' ')].join(' '))
+    }));
+    portalData.playbooks.forEach(b => indice.push({
+      tipo: 'playbook', id: b.id, titulo: b.titulo, sub: b.categoria, ref: b,
+      texto: norm([b.titulo, b.categoria, b.pasos.join(' '), (b.tags || []).join(' ')].join(' '))
+    }));
+    portalData.comisiones.forEach(c => indice.push({
+      tipo: 'comision', id: c.id, titulo: c.titulo, sub: 'Comisiones', ref: c,
+      texto: norm([c.titulo, c.detalle, (c.tags || []).join(' ')].join(' '))
+    }));
+    portalData.politicas.forEach(c => indice.push({
+      tipo: 'politica', id: c.id, titulo: c.titulo, sub: 'Política comercial', ref: c,
+      texto: norm([c.titulo, c.detalle, (c.tags || []).join(' ')].join(' '))
+    }));
+  }
+
+  function renderBuscadorControles() {
+    $('#typeChips').innerHTML = TIPOS.map(t => `<button class="chip px-3 py-1.5 rounded-full border border-slate-300 bg-white text-sm font-semibold" data-tipo="${t.id}" aria-pressed="${t.id === tipoActivo}">${t.label}</button>`).join('');
+    $$('#typeChips .chip').forEach(b => b.addEventListener('click', () => { tipoActivo = b.dataset.tipo; renderBuscadorControles(); buscar(); }));
+    const marcas = [...new Set(portalData.catalogo.map(p => p.marca))].sort();
+    const sel = $('#fMarca'); const cur = sel.value;
+    sel.innerHTML = '<option value="">Todas</option>' + marcas.map(m => `<option>${esc(m)}</option>`).join('');
+    sel.value = marcas.includes(cur) ? cur : '';
+  }
+
+  function buscar() {
+    const terms = norm($('#q').value).split(/\s+/).filter(Boolean);
+    const marca = $('#fMarca').value;
+    const pmax = parseFloat($('#fPrecioMax').value);
+    const orden = $('#fOrden').value;
+
+    let res = indice.filter(it => {
+      if (tipoActivo !== 'todos' && it.tipo !== tipoActivo) return false;
+      if (marca && it.tipo === 'producto' && it.marca !== marca) return false;
+      if (marca && it.tipo !== 'producto' && tipoActivo === 'producto') return false;
+      if (!isNaN(pmax) && it.tipo === 'producto' && (it.precio == null || it.precio > pmax)) return false;
+      return terms.every(t => it.texto.includes(t));
+    }).map(it => ({ it, score: terms.reduce((s, t) => s + (norm(it.titulo).includes(t) ? 3 : 1), 0) }));
+
+    if (orden === 'pAsc') res.sort((a, b) => (a.it.precio ?? Infinity) - (b.it.precio ?? Infinity));
+    else if (orden === 'pDesc') res.sort((a, b) => (b.it.precio ?? -Infinity) - (a.it.precio ?? -Infinity));
+    else if (orden === 'az') res.sort((a, b) => a.it.titulo.localeCompare(b.it.titulo, 'es'));
+    else res.sort((a, b) => b.score - a.score);
+
+    $('#resultInfo').textContent = `${res.length} resultado${res.length === 1 ? '' : 's'}`;
+    $('#results').innerHTML = res.length ? res.map(({ it }) => tarjeta(it)).join('')
+      : '<div class="card p-6 text-center text-slate-500 md:col-span-2 xl:col-span-3">Sin resultados. Pruebe con otra palabra.</div>';
+    $$('#results [data-cotizar]').forEach(b => b.addEventListener('click', () => { $('#qProd').value = b.dataset.cotizar; onProdChange(); showTab('cotizador'); }));
+    $$('#results [data-comparar]').forEach(b => b.addEventListener('click', () => { $('#cmp0').value = b.dataset.comparar; renderComparador(); showTab('comparador'); }));
+  }
+
+  function tarjeta(it) {
+    const badge = { producto: 'bg-sky-100 text-sky-800', playbook: 'bg-violet-100 text-violet-800', comision: 'bg-amber-100 text-amber-800', politica: 'bg-emerald-100 text-emerald-800' }[it.tipo];
+    const label = { producto: 'Producto', playbook: 'Playbook', comision: 'Comisión', politica: 'Política' }[it.tipo];
+    let cuerpo = '';
+    if (it.tipo === 'producto') {
+      const p = it.ref;
+      const specs = Object.entries(p.specs || {}).slice(0, 3).map(([k, v]) => `<li><span class="text-slate-500">${esc(portalData.etiquetasSpecs[k] || k)}:</span> ${esc(v)}</li>`).join('');
+      cuerpo = `
+        <div class="flex items-end justify-between gap-2 mt-2">
+          <div class="text-2xl font-extrabold text-slate-900 tabular">${p.precio != null ? fmt(p.precio) : '<span class="text-base text-slate-500">Precio: consultar</span>'}</div>
+          <div class="text-xs text-slate-500 text-right">Garantía ${esc(p.garantia)}<br>${esc(p.estado)}</div>
+        </div>
+        ${specs ? `<ul class="text-sm mt-2 space-y-0.5">${specs}</ul>` : ''}
+        ${(p.colores || []).length ? `<div class="text-xs text-slate-500 mt-2">Colores: ${esc(p.colores.join(', '))}</div>` : ''}
+        <div class="text-[11px] text-slate-400 mt-1">SKU ${esc(p.sku)}</div>
+        <div class="flex gap-2 mt-3">
+          <button data-cotizar="${esc(p.id)}" class="flex-1 px-3 py-2 rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold">Cotizar</button>
+          ${Object.keys(p.specs || {}).length ? `<button data-comparar="${esc(p.id)}" class="flex-1 px-3 py-2 rounded-lg border border-slate-300 hover:bg-slate-50 text-sm font-semibold">Comparar</button>` : ''}
+        </div>`;
+    } else if (it.tipo === 'playbook') {
+      cuerpo = `<ol class="list-decimal pl-5 text-sm mt-2 space-y-1">${it.ref.pasos.map(s => `<li>${esc(s)}</li>`).join('')}</ol>`;
+    } else {
+      cuerpo = `<p class="text-sm mt-2">${esc(it.ref.detalle)}</p>${it.ref.porConfirmar ? '<div class="mt-2 inline-block text-[11px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800">POR CONFIRMAR CON GERENCIA</div>' : ''}`;
+    }
+    return `<article class="card p-4 fade-in">
+      <div class="flex items-start justify-between gap-2">
+        <div><h3 class="font-bold text-slate-900 leading-snug">${esc(it.titulo)}</h3><div class="text-xs text-slate-500">${esc(it.sub)}</div></div>
+        <span class="shrink-0 text-[11px] font-bold px-2 py-0.5 rounded ${badge}">${label}</span>
+      </div>${cuerpo}</article>`;
+  }
+
+  /* ============================== 3. COMPARADOR ============================== */
+  function comparables() { return portalData.catalogo.filter(p => Object.keys(p.specs || {}).length); }
+
+  function renderComparadorSelects() {
+    const list = comparables();
+    const opts = '<option value="">— Ninguno —</option>' + list.map(p => `<option value="${esc(p.id)}">${esc(p.modelo)} · ${esc(p.variante)}</option>`).join('');
+    const prev = [0, 1, 2].map(i => ($('#cmp' + i) || {}).value);
+    $('#cmpSelects').innerHTML = [0, 1, 2].map(i => `<div><label class="lbl" for="cmp${i}">Modelo ${i + 1}</label><select id="cmp${i}" class="ctl">${opts}</select></div>`).join('');
+    [0, 1, 2].forEach(i => {
+      const s = $('#cmp' + i);
+      s.value = prev[i] && list.some(p => p.id === prev[i]) ? prev[i] : (list[i] ? list[i].id : '');
+      if (i === 2 && !prev[2]) s.value = '';
+      s.addEventListener('change', renderComparador);
+    });
+  }
+
+  function renderComparador() {
+    const sel = [0, 1, 2].map(i => $('#cmp' + i).value).filter(Boolean);
+    const prods = sel.map(id => portalData.catalogo.find(p => p.id === id)).filter(Boolean);
+    if (!prods.length) { $('#cmpTable').innerHTML = '<tr><td class="p-4 text-slate-500">Elija al menos un modelo.</td></tr>'; return; }
+    const precios = prods.map(p => p.precio).filter(v => v != null);
+    const minP = precios.length ? Math.min(...precios) : null;
+    const filas = [
+      ['Precio', p => p.precio != null ? `<span class="font-extrabold tabular">${fmt(p.precio)}</span>${minP != null && p.precio > minP ? `<div class="text-xs text-slate-500">+${fmt(p.precio - minP)} vs. el más bajo</div>` : ''}` : 'Consultar'],
+      ['Marca', p => esc(p.marca)],
+      ['Variante', p => esc(p.variante)],
+      ...Object.keys(portalData.etiquetasSpecs).map(k => [portalData.etiquetasSpecs[k], p => esc((p.specs || {})[k] || '—')]),
+      ['Garantía', p => esc(p.garantia)],
+      ['Colores', p => esc((p.colores || []).join(', ') || '—')]
+    ];
+    $('#cmpTable').innerHTML = `
+      <thead><tr class="border-b border-slate-200"><th class="text-left p-2 w-40"></th>${prods.map(p => `<th class="text-left p-2 align-bottom"><div class="font-extrabold text-slate-900">${esc(p.modelo)}</div><button data-cotizar="${esc(p.id)}" class="mt-1 px-2 py-1 rounded bg-brand-600 text-white text-xs font-semibold">Cotizar</button></th>`).join('')}</tr></thead>
+      <tbody class="divide-y divide-slate-100">${filas.map(([lbl, fn]) => `<tr><th class="text-left p-2 text-[11px] uppercase tracking-wide text-slate-500 font-semibold align-top">${esc(lbl)}</th>${prods.map(p => `<td class="p-2 align-top">${fn(p)}</td>`).join('')}</tr>`).join('')}</tbody>`;
+    $$('#cmpTable [data-cotizar]').forEach(b => b.addEventListener('click', () => { $('#qProd').value = b.dataset.cotizar; onProdChange(); showTab('cotizador'); }));
+  }
+
+  /* ============================== 4. COTIZADOR ============================== */
+  function renderCotizadorControles() {
+    const F = portalData.financiamiento;
+    const curP = $('#qProd').value, curPlan = $('#qPlan').value;
+    $('#qProd').innerHTML = '<option value="">Precio manual</option>' + portalData.catalogo.map(p => `<option value="${esc(p.id)}">${esc(p.modelo)} · ${esc(p.variante)}${p.precio != null ? ' — ' + fmt(p.precio) : ''}</option>`).join('');
+    $('#qProd').value = portalData.catalogo.some(p => p.id === curP) ? curP : (portalData.catalogo[0] ? portalData.catalogo[0].id : '');
+    $('#qPlan').innerHTML = F.planes.map(p => `<option value="${esc(p.id)}">${esc(p.nombre)}${p.recargoPct ? ` (+${p.recargoPct}%)` : ''}</option>`).join('');
+    if (F.planes.some(p => p.id === curPlan)) $('#qPlan').value = curPlan;
+    const w = $('#finWarn');
+    if (F.porConfirmar) { w.classList.remove('hidden'); w.textContent = `Planes, recargos y descuento máximo (${F.descuentoMaxPct}%) son de referencia: confirmar con Gerencia antes de ofrecerlos al cliente.`; }
+    else w.classList.add('hidden');
+    if (!curP) onProdChange();
+  }
+
+  function onProdChange() {
+    const p = portalData.catalogo.find(x => x.id === $('#qProd').value);
+    $('#qPrecio').value = p && p.precio != null ? p.precio : '';
+    calcularCotizacion();
+  }
+
+  function calcularCotizacion() {
+    const F = portalData.financiamiento;
+    const plan = F.planes.find(p => p.id === $('#qPlan').value) || F.planes[0];
+    const precio = num($('#qPrecio')), cant = Math.max(1, Math.round(num($('#qCant')))), acc = num($('#qAcc'));
+    const descPct = num($('#qDesc')), trade = num($('#qTrade'));
+    let primaPct = num($('#qPrima'));
+
+    const subtotal = precio * cant + acc;
+    const desc = subtotal * descPct / 100;
+    const neto = Math.max(subtotal - desc - trade, 0);
+    const primaMin = plan.primaMinPct || 0;
+    const primaUsada = Math.max(primaPct, primaMin);
+    const prima = neto * primaUsada / 100;
+    const financiado = neto - prima;
+    const recargo = financiado * (plan.recargoPct || 0) / 100;
+    const totalFin = financiado + recargo;
+    const cuota = plan.meses > 0 ? totalFin / plan.meses : totalFin;
+    const totalPagar = prima + totalFin;
+
+    const row = (k, v, cls = '') => `<div class="flex justify-between gap-3 ${cls}"><dt class="text-slate-500">${k}</dt><dd>${v}</dd></div>`;
+    $('#qSummary').innerHTML =
+      row('Subtotal', fmt(subtotal, 2)) +
+      (desc ? row(`Descuento ${descPct}%`, '−' + fmt(desc, 2), 'text-emerald-700') : '') +
+      (trade ? row('Trade-In', '−' + fmt(trade, 2), 'text-emerald-700') : '') +
+      row('Neto', fmt(neto, 2), 'font-semibold border-t border-slate-200 pt-1.5') +
+      (prima ? row(`Prima ${primaUsada}%`, fmt(prima, 2)) : '') +
+      (recargo ? row(`Recargo ${plan.recargoPct}%`, fmt(recargo, 2)) : '') +
+      row('Total a pagar', fmt(totalPagar, 2), 'font-bold text-slate-900 border-t border-slate-200 pt-1.5');
+
+    $('#qCuotaLbl').textContent = plan.meses > 1 ? `Cuota mensual · ${plan.meses} meses` : 'Pago único';
+    $('#qCuota').textContent = fmt(cuota, 2);
+    $('#qCuotaSub').textContent = plan.nombre + (prima ? ` · prima ${fmt(prima, 2)}` : '');
+
+    const alerts = [];
+    if (descPct > F.descuentoMaxPct) alerts.push(`El descuento supera el máximo de referencia (${F.descuentoMaxPct}%). Requiere autorización.`);
+    if (primaPct < primaMin) alerts.push(`Este plan pide prima mínima de ${primaMin}%; se calculó con ${primaMin}%.`);
+    if (!precio) alerts.push('Ingrese el precio unitario.');
+    const a = $('#qAlert'); a.classList.toggle('hidden', !alerts.length); a.innerHTML = alerts.map(esc).join('<br>');
+
+    calcularCotizacion.last = { plan, precio, cant, acc, descPct, desc, trade, neto, prima, primaUsada, cuota, totalPagar };
+  }
+
+  function textoCotizacion() {
+    const c = calcularCotizacion.last; if (!c) return '';
+    const p = portalData.catalogo.find(x => x.id === $('#qProd').value);
+    const cliente = $('#qCliente').value.trim();
+    const lineas = [
+      `*${portalData.meta.empresa}* — Cotización`,
+      cliente ? `Cliente: ${cliente}` : null,
+      `Equipo: ${p ? p.modelo + ' ' + p.variante : 'Artículo'} x${c.cant} — ${fmt(c.precio, 2)} c/u`,
+      c.acc ? `Accesorios: ${fmt(c.acc, 2)}` : null,
+      c.desc ? `Descuento (${c.descPct}%): −${fmt(c.desc, 2)}` : null,
+      c.trade ? `Trade-In: −${fmt(c.trade, 2)}` : null,
+      `Neto: ${fmt(c.neto, 2)}`,
+      c.prima ? `Prima (${c.primaUsada}%): ${fmt(c.prima, 2)}` : null,
+      c.plan.meses > 1 ? `${c.plan.nombre}: ${c.plan.meses} cuotas de ${fmt(c.cuota, 2)}` : `Pago de contado: ${fmt(c.cuota, 2)}`,
+      `Total: ${fmt(c.totalPagar, 2)}`,
+      p && p.garantia && p.garantia !== '—' ? `Garantía: ${p.garantia}` : null,
+      'Precios sujetos a disponibilidad. ' + portalData.meta.eslogan
+    ];
+    return lineas.filter(Boolean).join('\n');
+  }
+
+  /* ============================== 5. TRADE-IN ============================== */
+  let tiCondicion = 'A';
+
+  function renderTradeInControles() {
+    const T = portalData.tradeIn;
+    const cur = $('#tiModelo').value;
+    $('#tiModelo').innerHTML = T.valoresBase.map(v => `<option>${esc(v.modelo)}</option>`).join('');
+    if (T.valoresBase.some(v => v.modelo === cur)) $('#tiModelo').value = cur;
+    if (!T.condiciones.some(c => c.id === tiCondicion)) tiCondicion = T.condiciones[0].id;
+    $('#tiCond').innerHTML = T.condiciones.map(c => `
+      <button class="chip text-left px-3 py-2 rounded-lg border border-slate-300 bg-white" data-cond="${esc(c.id)}" aria-pressed="${c.id === tiCondicion}">
+        <div class="font-bold text-sm">${esc(c.nombre)}</div><div class="text-[11px] opacity-80">${esc(c.detalle)}</div></button>`).join('');
+    $$('#tiCond .chip').forEach(b => b.addEventListener('click', () => { tiCondicion = b.dataset.cond; renderTradeInControles(); calcularTradeIn(); }));
+    if (!$('#tiDed').children.length || $('#tiDed').dataset.v !== String(T.deducciones.length)) {
+      $('#tiDed').innerHTML = T.deducciones.map(d => `<label class="flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm cursor-pointer"><input type="checkbox" class="w-4 h-4 accent-red-700" data-ded="${esc(d.id)}"> ${esc(d.nombre)} <span class="ml-auto text-xs text-slate-500">−${d.pct}%</span></label>`).join('');
+      $('#tiDed').dataset.v = String(T.deducciones.length);
+      $('#tiBlock').innerHTML = T.bloqueantes.map((b, i) => `<label class="flex items-center gap-2 px-3 py-2 rounded-lg border border-red-200 bg-red-50 text-sm text-red-900 cursor-pointer"><input type="checkbox" class="w-4 h-4 accent-red-700" data-block="${i}"> ${esc(b)}</label>`).join('');
+      $$('#tiDed input, #tiBlock input').forEach(i => i.addEventListener('change', calcularTradeIn));
+    }
+    const w = $('#tiWarn');
+    if (T.porConfirmar) { w.classList.remove('hidden'); w.textContent = 'Valores base, factores y deducciones son de referencia: validar con Operaciones antes de comprometer un monto con el cliente.'; }
+    else w.classList.add('hidden');
+  }
+
+  function calcularTradeIn() {
+    const T = portalData.tradeIn;
+    const base = (T.valoresBase.find(v => v.modelo === $('#tiModelo').value) || {}).valor || 0;
+    const cond = T.condiciones.find(c => c.id === tiCondicion) || T.condiciones[0];
+    const bat = Math.min(100, Math.max(0, num($('#tiBat'))));
+    const batF = (T.bateria.slice().sort((a, b) => b.min - a.min).find(r => bat >= r.min) || { factor: 1 }).factor;
+    const deds = $$('#tiDed input:checked').map(i => T.deducciones.find(d => d.id === i.dataset.ded)).filter(Boolean);
+    const dedPct = Math.min(deds.reduce((s, d) => s + d.pct, 0), 90);
+    const bloqueado = $$('#tiBlock input:checked').length > 0;
+
+    const valor = bloqueado ? 0 : base * cond.factor * batF * (1 - dedPct / 100);
+    const r = T.rangoPct / 100;
+    const lo = Math.floor(valor * (1 - r) / 5) * 5, hi = Math.floor(valor / 5) * 5;
+
+    const box = $('#tiResultBox');
+    box.className = 'rounded-xl p-4 text-white ' + (bloqueado ? 'bg-red-700' : 'bg-slate-900');
+    $('#tiValor').textContent = bloqueado ? 'No se recibe' : (hi > 0 ? `${fmt(lo)} – ${fmt(hi)}` : '$0');
+    $('#tiSub').textContent = bloqueado ? 'Hay un bloqueante marcado' : `Máximo sugerido ${fmt(hi)}`;
+
+    const row = (k, v) => `<div class="flex justify-between gap-3"><dt class="text-slate-500">${k}</dt><dd>${v}</dd></div>`;
+    $('#tiBreak').innerHTML =
+      row('Valor base (A, batería ≥ 90%)', fmt(base)) +
+      row(`Condición ${esc(cond.id)}`, '×' + cond.factor.toFixed(2)) +
+      row(`Batería ${bat}%`, '×' + batF.toFixed(2)) +
+      row('Deducciones', dedPct ? '−' + dedPct + '%' : '—');
+
+    calcularTradeIn.last = bloqueado ? 0 : hi;
+  }
+
+  /* ============================== 6. OBJECIONES ============================== */
+  function renderObjecionesControles() {
+    const cats = [...new Set(portalData.objeciones.map(o => o.categoria))];
+    const cur = $('#obCat').value;
+    $('#obCat').innerHTML = '<option value="">Todas</option>' + cats.map(c => `<option>${esc(c)}</option>`).join('');
+    $('#obCat').value = cats.includes(cur) ? cur : '';
+  }
+
+  function renderObjeciones() {
+    const terms = norm($('#obQ').value).split(/\s+/).filter(Boolean);
+    const cat = $('#obCat').value;
+    const list = portalData.objeciones.filter(o => (!cat || o.categoria === cat) && terms.every(t => norm(o.objecion + ' ' + o.respuesta + ' ' + o.categoria).includes(t)));
+    $('#obList').innerHTML = list.length ? list.map(o => `
+      <article class="card p-4 fade-in">
+        <div class="flex items-start justify-between gap-2">
+          <h3 class="font-bold text-slate-900">“${esc(o.objecion)}”</h3>
+          <span class="shrink-0 text-[11px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700">${esc(o.categoria)}</span>
+        </div>
+        <p class="mt-2 text-[15px] leading-relaxed">${esc(o.respuesta)}</p>
+        <div class="mt-2 text-sm text-brand-700 font-semibold">→ ${esc(o.siguientePaso)}</div>
+        <div class="mt-3 flex items-center gap-2">
+          <button class="px-3 py-1.5 rounded-lg border border-slate-300 hover:bg-slate-50 text-sm font-semibold" data-copy="${esc(o.id)}">Copiar respuesta</button>
+          <span class="hidden text-xs text-emerald-700" id="ok-${esc(o.id)}">Copiado ✓</span>
+        </div>
+      </article>`).join('') : '<div class="card p-6 text-center text-slate-500 md:col-span-2">Sin coincidencias.</div>';
+    $$('#obList [data-copy]').forEach(b => b.addEventListener('click', () => {
+      const o = portalData.objeciones.find(x => x.id === b.dataset.copy);
+      if (o) copyText(o.respuesta, document.getElementById('ok-' + o.id));
+    }));
+  }
+
+  /* ============================== DATOS EN VIVO ============================== */
+  function setLive(state, text) {
+    const dot = $('#liveDot');
+    dot.className = 'w-2 h-2 rounded-full ' + ({ ok: 'bg-emerald-500', load: 'bg-amber-400 animate-pulse', err: 'bg-red-500', file: 'bg-slate-400' }[state]);
+    $('#liveText').textContent = text;
+  }
+
+  async function cargarEnVivo() {
+    const url = portalData.config.liveEndpoint;
+    if (!url) {
+      setLive('file', 'Datos del archivo · corte ' + corteDate().toLocaleString('es-NI', { timeZone: 'America/Managua', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }));
+      return;
+    }
+    setLive('load', 'Actualizando…');
+    try {
+      const r = await fetch(url, { cache: 'no-store', headers: { Accept: 'application/json' } });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const data = await r.json();
+      deepMerge(portalData, data);
+      renderTodo();
+      setLive('ok', 'En vivo · ' + new Date().toLocaleTimeString('es-NI', { timeZone: 'America/Managua', hour: '2-digit', minute: '2-digit' }));
+    } catch (e) {
+      console.error('[portal] No se pudo leer el endpoint en vivo:', e);
+      setLive('err', 'Sin conexión: mostrando corte del archivo');
+    }
+  }
+
+  /* ============================== ARRANQUE ============================== */
+  function renderTodo() {
+    $$('[data-bind]').forEach(el => { el.textContent = portalData.meta[el.dataset.bind] || ''; });
+    renderDashboard();
+    construirIndice();
+    renderBuscadorControles(); buscar();
+    renderComparadorSelects(); renderComparador();
+    renderCotizadorControles(); calcularCotizacion();
+    renderTradeInControles(); calcularTradeIn();
+    renderObjecionesControles(); renderObjeciones();
+  }
+
+  ['#q', '#fPrecioMax'].forEach(s => $(s).addEventListener('input', buscar));
+  ['#fMarca', '#fOrden'].forEach(s => $(s).addEventListener('change', buscar));
+  $('#btnClear').addEventListener('click', () => { $('#q').value = ''; $('#fMarca').value = ''; $('#fPrecioMax').value = ''; $('#fOrden').value = 'rel'; tipoActivo = 'todos'; renderBuscadorControles(); buscar(); });
+
+  $('#qProd').addEventListener('change', onProdChange);
+  ['#qPrecio', '#qCant', '#qAcc', '#qDesc', '#qTrade', '#qPrima'].forEach(s => $(s).addEventListener('input', calcularCotizacion));
+  $('#qPlan').addEventListener('change', calcularCotizacion);
+  $('#btnCopyQuote').addEventListener('click', () => copyText(textoCotizacion(), $('#copyOk')));
+
+  $('#tiModelo').addEventListener('change', calcularTradeIn);
+  $('#tiBat').addEventListener('input', calcularTradeIn);
+  $('#btnApplyTrade').addEventListener('click', () => { $('#qTrade').value = calcularTradeIn.last || 0; calcularCotizacion(); showTab('cotizador'); });
+
+  $('#obQ').addEventListener('input', renderObjeciones);
+  $('#obCat').addEventListener('change', renderObjeciones);
+
+  $('#btnRefresh').addEventListener('click', cargarEnVivo);
+
+  renderTodo();
+  const inicial = (location.hash || '').slice(1);
+  if (['dashboard', 'buscador', 'comparador', 'cotizador', 'tradein', 'objeciones'].includes(inicial)) showTab(inicial);
+  cargarEnVivo();
+  if (portalData.config.liveEndpoint && portalData.config.refreshMinutes > 0) {
+    setInterval(cargarEnVivo, portalData.config.refreshMinutes * 60 * 1000);
+  }
+})();
+</script>
+</body>
+</html>
