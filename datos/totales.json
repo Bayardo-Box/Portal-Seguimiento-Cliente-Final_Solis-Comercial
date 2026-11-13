@@ -1,0 +1,154 @@
+{
+ "2025-05": {
+  "total": 1694057.3,
+  "n": 2197,
+  "void_total": 17345.53,
+  "void_n": 32,
+  "draft_total": 0.0,
+  "draft_n": 0
+ },
+ "2025-06": {
+  "total": 1370184.83,
+  "n": 1844,
+  "void_total": 24452.6,
+  "void_n": 36,
+  "draft_total": 0.0,
+  "draft_n": 0
+ },
+ "2025-07": {
+  "total": 1508780.4,
+  "n": 2108,
+  "void_total": 15791.11,
+  "void_n": 26,
+  "draft_total": 0.0,
+  "draft_n": 0
+ },
+ "2025-08": {
+  "total": 1413446.42,
+  "n": 2051,
+  "void_total": 22841.42,
+  "void_n": 33,
+  "draft_total": 0.0,
+  "draft_n": 0
+ },
+ "2025-09": {
+  "total": 1376808.52,
+  "n": 1883,
+  "void_total": 15211.02,
+  "void_n": 21,
+  "draft_total": 0.0,
+  "draft_n": 0
+ },
+ "2025-10": {
+  "total": 1390877.72,
+  "n": 1950,
+  "void_total": 12848.82,
+  "void_n": 24,
+  "draft_total": 0.0,
+  "draft_n": 0
+ },
+ "2025-11": {
+  "total": 1842853.53,
+  "n": 2370,
+  "void_total": 25689.0,
+  "void_n": 39,
+  "draft_total": 0.0,
+  "draft_n": 0
+ },
+ "2025-12": {
+  "total": 2544262.03,
+  "n": 2880,
+  "void_total": 19017.0,
+  "void_n": 33,
+  "draft_total": 0.0,
+  "draft_n": 0
+ },
+ "2026-01": {
+  "total": 1421398.64,
+  "n": 1776,
+  "void_total": 15132.92,
+  "void_n": 27,
+  "draft_total": 0.0,
+  "draft_n": 0
+ },
+ "2026-02": {
+  "total": 1378573.92,
+  "n": 1681,
+  "void_total": 41161.82,
+  "void_n": 31,
+  "draft_total": 0.0,
+  "draft_n": 0
+ },
+ "2026-03": {
+  "total": 1504044.78,
+  "n": 1930,
+  "void_total": 23636.17,
+  "void_n": 39,
+  "draft_total": 0.0,
+  "draft_n": 0
+ },
+ "2026-04": {
+  "total": 1397865.79,
+  "n": 1744,
+  "void_total": 31033.0,
+  "void_n": 31,
+  "draft_total": 0.0,
+  "draft_n": 0
+ },
+ "2026-05": {
+  "total": 1757024.5,
+  "n": 2155,
+  "void_total": 32640.91,
+  "void_n": 42,
+  "draft_total": 0.0,
+  "draft_n": 0
+ },
+ "2026-06": {
+  "total": 2062180.18,
+  "n": 2222,
+  "void_total": 22212.0,
+  "void_n": 30,
+  "draft_total": 0.0,
+  "draft_n": 0
+ },
+ "2026-07": {
+  "total": 1749715.05,
+  "n": 1883,
+  "void_total": 19076.84,
+  "void_n": 35,
+  "draft_total": 0.0,
+  "draft_n": 0
+ },
+ "2026-08": {
+  "total": 1798731.38,
+  "n": 1882,
+  "void_total": 29419.0,
+  "void_n": 39,
+  "draft_total": 0.0,
+  "draft_n": 0
+ },
+ "2026-09": {
+  "total": 2141253.66,
+  "n": 2198,
+  "void_total": 35305.06,
+  "void_n": 39,
+  "draft_total": 0.0,
+  "draft_n": 0
+ },
+ "2026-10": {
+  "total": 2526351.3,
+  "n": 2425,
+  "void_total": 80714.0,
+  "void_n": 59,
+  "draft_total": 0.0,
+  "draft_n": 0
+ },
+ "2026-11": {
+  "total": 916205.94,
+  "n": 940,
+  "void_total": 7887.0,
+  "void_n": 12,
+  "draft_total": 0.0,
+  "draft_n": 0
+ }
+}

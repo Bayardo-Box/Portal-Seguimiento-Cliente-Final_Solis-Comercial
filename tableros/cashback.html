@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Dashboard de Cashback / Trade-in · Solís Comercial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="motor.css">
+<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+<script src="conexion.js"></script>
+<script>
+/* Fuentes de datos del tablero: las mismas consultas a Zoho del tablero de Claude (se responden con /datos) y las tablas fijas del plan */
+window.FUENTES = {"cashback":{"server":"Zoho CRM","tool":"executeCOQLQuery","args":{"body":{"select_query":"select Numero_de_Cash_Back, Fecha, Owner.first_name, Owner.last_name, Cliente.Full_Name, Marca, Modelo, IMEI, Color, Valoraci_n, Marca_2, Modelo_2, IMEI_2, Color_2, Valoraci_n_2, Marca_3, Modelo_3, IMEI_3, Color_3, Valoraci_n_3, Total_valoraci_n, Factura_CashBack, Estatus, Recibido_en_caja1, Recibido_en_operaciones from Cash_Back where id is not null order by Fecha desc limit 2000"}}},"ventas":{"server":"Zoho Books","tool":"list_invoices","args":{"query_params":{"date_end":"2099-12-31","date_start":"2025-05-01","organization_id":"872034702","per_page":1,"response_option":3}}},"existencias_imei":{"filas":[{"Articulo":"APPLE WATCH ULTRA 3 49MM","SKU":"UST-APWUL349MMBT","IMEI":"GQ675520PX","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-15291","Contacto":"","Fecha_ultimo_movimiento":"2026-09-26","Bodega":"AS","Costo":500,"Estatus":"available"},{"Articulo":"IPHONE 12 (128GB)","SKU":"UST-IP12128P","IMEI":"359823651071740","Ultimo_movimiento":"Factura de proveedor","Documento":"FAC-SC-08139","Contacto":"DAVID STEVEN BETANCOURT","Fecha_ultimo_movimiento":"2026-11-04","Bodega":"MS","Costo":130,"Estatus":"available"},{"Articulo":"IPHONE 12 PRO MAX (128GB) 1SIM+ESIM","SKU":"UST-IP12PM1281S+SL","IMEI":"357014748071578","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16803","Contacto":"","Fecha_ultimo_movimiento":"2026-11-10","Bodega":"SC-CALL","Costo":155,"Estatus":"available"},{"Articulo":"IPHONE 13 (128GB)","SKU":"UST-IP13128PK","IMEI":"356122172030449","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-13715","Contacto":"","Fecha_ultimo_movimiento":"2026-08-06","Bodega":"SC","Costo":265,"Estatus":"available"},{"Articulo":"IPHONE 13 (128GB) 1SIM+ESIM","SKU":"UST-IP13128AZ1S+E","IMEI":"359897308225719","Ultimo_movimiento":"Factura de proveedor","Documento":"FAC-SC-07570","Contacto":"DEYLING VILLANUEVA","Fecha_ultimo_movimiento":"2026-09-17","Bodega":"MS","Costo":180,"Estatus":"available"},{"Articulo":"IPHONE 13 PRO MAX (128GB) 1 SIM + ESIM","SKU":"UST-IP13PM128EAZ","IMEI":"358649259221689","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-14601","Contacto":"","Fecha_ultimo_movimiento":"2026-09-03","Bodega":"AS","Costo":420,"Estatus":"available"},{"Articulo":"IPHONE 13 PRO MAX (128GB) 1 SIM + ESIM","SKU":"UST-IP13PM128EBT","IMEI":"355380252768160","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-14601","Contacto":"","Fecha_ultimo_movimiento":"2026-09-03","Bodega":"AS","Costo":420,"Estatus":"available"},{"Articulo":"IPHONE 13 PRO MAX (128GB) 1 SIM + ESIM","SKU":"UST-IP13PM128EBT","IMEI":"355804461061224","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-15265","Contacto":"","Fecha_ultimo_movimiento":"2026-09-25","Bodega":"MS","Costo":420,"Estatus":"available"},{"Articulo":"IPHONE 13 PRO MAX (128GB) 1 SIM + ESIM","SKU":"UST-IP13PM128EBT","IMEI":"354106776011618","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16373","Contacto":"","Fecha_ultimo_movimiento":"2026-10-28","Bodega":"MY","Costo":420,"Estatus":"available"},{"Articulo":"IPHONE 13 PRO MAX (128GB) 1 SIM + ESIM","SKU":"UST-IP13PM128EBT","IMEI":"356796484510451","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16515","Contacto":"","Fecha_ultimo_movimiento":"2026-10-31","Bodega":"MS","Costo":420,"Estatus":"available"},{"Articulo":"IPHONE 14 PRO (512GB) ESIM","SKU":"UST-IP14PM512EGL","IMEI":"350923388083197","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16803","Contacto":"","Fecha_ultimo_movimiento":"2026-11-10","Bodega":"SC-CALL","Costo":380,"Estatus":"available"},{"Articulo":"IPHONE 14 PRO MAX (128GB) ESIM","SKU":"UST-IP14PM128EBL","IMEI":"353665909943667","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16368","Contacto":"","Fecha_ultimo_movimiento":"2026-10-28","Bodega":"AS","Costo":475,"Estatus":"available"},{"Articulo":"IPHONE 14 PRO MAX (128GB) ESIM","SKU":"UST-IP14PM128EBL","IMEI":"358001688685623","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16368","Contacto":"","Fecha_ultimo_movimiento":"2026-10-28","Bodega":"AS","Costo":475,"Estatus":"available"},{"Articulo":"IPHONE 14 PRO MAX (128GB) ESIM","SKU":"UST-IP14PM128EBL","IMEI":"353742537834327","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16582","Contacto":"","Fecha_ultimo_movimiento":"2026-11-03","Bodega":"SC-CALL","Costo":350,"Estatus":"available"},{"Articulo":"IPHONE 14 PRO MAX (128GB) ESIM","SKU":"UST-IP14PM128EBL","IMEI":"357917877558852","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16800","Contacto":"","Fecha_ultimo_movimiento":"2026-11-10","Bodega":"MS","Costo":475,"Estatus":"available"},{"Articulo":"IPHONE 15 (128GB) 1SIM + ESIM","SKU":"UST-IP15128CL","IMEI":"356506173244381","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16804","Contacto":"","Fecha_ultimo_movimiento":"2026-11-10","Bodega":"MS","Costo":320,"Estatus":"available"},{"Articulo":"IPHONE 15 PRO MAX (256GB) ESIM","SKU":"UST-IP15PM256AZ","IMEI":"351646271599735","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16698","Contacto":"","Fecha_ultimo_movimiento":"2026-11-06","Bodega":"MS","Costo":510,"Estatus":"available"},{"Articulo":"IPHONE 15 PRO MAX (512GB) ESIM","SKU":"UST-IP15PM512ENT","IMEI":"359897657654279","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16715","Contacto":"","Fecha_ultimo_movimiento":"2026-11-07","Bodega":"SC-CALL","Costo":590,"Estatus":"available"},{"Articulo":"IPHONE 16 (128GB) 1 SIM + ESIM","SKU":"UST-IP161281+EB","IMEI":"359062146097172","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16240","Contacto":"","Fecha_ultimo_movimiento":"2026-10-24","Bodega":"SC","Costo":458,"Estatus":"available"},{"Articulo":"IPHONE 16 PRO (256GB) ESIM","SKU":"UST-IP16P256DT","IMEI":"350328825599179","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16001","Contacto":"","Fecha_ultimo_movimiento":"2026-10-16","Bodega":"AS","Costo":650,"Estatus":"available"},{"Articulo":"IPHONE 16 PRO MAX (256GB) ESIM","SKU":"UST-IP16PM256EWT","IMEI":"358409814610029","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16586","Contacto":"","Fecha_ultimo_movimiento":"2026-11-03","Bodega":"MS","Costo":660,"Estatus":"available"},{"Articulo":"IPHONE 16 PRO MAX (256GB) ESIM","SKU":"UST-IP16PM256EDT","IMEI":"358594368472643","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16678","Contacto":"","Fecha_ultimo_movimiento":"2026-11-06","Bodega":"MS","Costo":630,"Estatus":"available"},{"Articulo":"IPHONE 16 PRO MAX (256GB) ESIM","SKU":"UST-IP16PM256EBT","IMEI":"359222382683727","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16817","Contacto":"","Fecha_ultimo_movimiento":"2026-11-10","Bodega":"SC","Costo":650,"Estatus":"available"},{"Articulo":"IPHONE 16 PRO MAX (512GB) 1 SIM + ESIM","SKU":"UST-IP16PM5121+EDT","IMEI":"352913654567468","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16698","Contacto":"","Fecha_ultimo_movimiento":"2026-11-06","Bodega":"MS","Costo":700,"Estatus":"available"},{"Articulo":"IPHONE 16 PRO MAX (512GB) ESIM","SKU":"UST-IP16PM512EDRT","IMEI":"358637621650800","Ultimo_movimiento":"Factura de proveedor","Documento":"FAC-SC-08075","Contacto":"ANA MARIA MOLINA ZELAYA","Fecha_ultimo_movimiento":"2026-10-31","Bodega":"MS","Costo":730,"Estatus":"available"},{"Articulo":"IPHONE 17 (256GB)  ESIM","SKU":"UST-IP17256EWT","IMEI":"353990820018260","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16001","Contacto":"","Fecha_ultimo_movimiento":"2026-10-16","Bodega":"AS","Costo":710,"Estatus":"available"},{"Articulo":"IPHONE 17 (256GB)  ESIM","SKU":"UST-IP17256EWT","IMEI":"354780900241950","Ultimo_movimiento":"Factura de proveedor","Documento":"FAC-AS-00124","Contacto":"RAFAEL MARTINEZ MARTINEZ BONILLA","Fecha_ultimo_movimiento":"2026-10-19","Bodega":"MS","Costo":620,"Estatus":"available"},{"Articulo":"IPHONE 17 PRO (256GB) ESIM","SKU":"UST-IP17PR256E","IMEI":"352591611525108","Ultimo_movimiento":"Factura de proveedor","Documento":"FAC-SC-07981","Contacto":"JASSUARA HUEMBES","Fecha_ultimo_movimiento":"2026-10-21","Bodega":"MS","Costo":860,"Estatus":"available"},{"Articulo":"IPHONE 17 PRO MAX  (512GB) ESIM","SKU":"UST-IP17PM512SL","IMEI":"358902511542099","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-15419","Contacto":"","Fecha_ultimo_movimiento":"2026-09-30","Bodega":"SC-CALL","Costo":1280,"Estatus":"available"},{"Articulo":"IPHONE 17 PRO MAX  (512GB) ESIM","SKU":"UST-IP17PM512EBT","IMEI":"358419942141409","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16032","Contacto":"","Fecha_ultimo_movimiento":"2026-10-17","Bodega":"MS","Costo":1050,"Estatus":"available"},{"Articulo":"IPHONE 17 PRO MAX  (512GB) ESIM","SKU":"UST-IP17PM512EOG","IMEI":"355190203658356","Ultimo_movimiento":"Factura de proveedor","Documento":"FAC-SC-08077","Contacto":"DEYLING VILLANUEVA","Fecha_ultimo_movimiento":"2026-10-29","Bodega":"MS","Costo":950,"Estatus":"available"},{"Articulo":"IPHONE 17 PRO MAX (1TB) ESIM","SKU":"UST-IP17PM1TBEOG","IMEI":"357999604442790","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16001","Contacto":"","Fecha_ultimo_movimiento":"2026-10-16","Bodega":"AS","Costo":1250,"Estatus":"available"},{"Articulo":"IPHONE 17 PRO MAX (1TB) ESIM","SKU":"UST-IP17PM1TBESL","IMEI":"350247158/570427","Ultimo_movimiento":"Factura de proveedor","Documento":"FAC-SC-08003","Contacto":"DAVID STEVEN BETANCOURT","Fecha_ultimo_movimiento":"2026-10-23","Bodega":"MS","Costo":1100,"Estatus":"available"},{"Articulo":"IPHONE 17 PRO MAX (256GB) ESIM","SKU":"UST-IP17PM256EOG","IMEI":"350599868097921","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-14897","Contacto":"","Fecha_ultimo_movimiento":"2026-09-14","Bodega":"AS","Costo":800,"Estatus":"available"},{"Articulo":"IPHONE 17 PRO MAX (256GB) ESIM","SKU":"UST-IP17PM256EOG","IMEI":"355988215947034","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-14897","Contacto":"","Fecha_ultimo_movimiento":"2026-09-14","Bodega":"AS","Costo":800,"Estatus":"available"},{"Articulo":"IPHONE 17 PRO MAX (256GB) ESIM","SKU":"UST-IP17PM256EOG","IMEI":"358482491755300","Ultimo_movimiento":"Factura de proveedor","Documento":"FAC-SC-07629","Contacto":"ANA MOLINA","Fecha_ultimo_movimiento":"2026-09-21","Bodega":"MS","Costo":1000,"Estatus":"available"},{"Articulo":"IPHONE 17 PRO MAX (256GB) ESIM","SKU":"UST-IP17PM256EOG","IMEI":"351046972371874","Ultimo_movimiento":"Factura de proveedor","Documento":"FAC-SC-07605","Contacto":"MARIA FERNANDA","Fecha_ultimo_movimiento":"2026-09-21","Bodega":"MS","Costo":1000,"Estatus":"available"},{"Articulo":"IPHONE 17 PRO MAX (256GB) ESIM","SKU":"UST-IP17PM256EOG","IMEI":"352791398747657","Ultimo_movimiento":"Factura de proveedor","Documento":"FAC-SC-07650","Contacto":"JASSUARA HUEMBES","Fecha_ultimo_movimiento":"2026-09-22","Bodega":"MS","Costo":1000,"Estatus":"available"},{"Articulo":"IPHONE 17 PRO MAX (256GB) ESIM","SKU":"UST-IP17PM256EBT","IMEI":"3578226997853764","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-15291","Contacto":"","Fecha_ultimo_movimiento":"2026-09-26","Bodega":"AS","Costo":1000,"Estatus":"available"},{"Articulo":"IPHONE 17 PRO MAX (256GB) ESIM","SKU":"UST-IP17PM256EBT","IMEI":"351687740623847","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-15291","Contacto":"","Fecha_ultimo_movimiento":"2026-09-26","Bodega":"AS","Costo":1000,"Estatus":"available"},{"Articulo":"IPHONE 17 PRO MAX (256GB) ESIM","SKU":"UST-IP17PM256EOG","IMEI":"3516877426414771","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-15291","Contacto":"","Fecha_ultimo_movimiento":"2026-09-26","Bodega":"AS","Costo":1000,"Estatus":"available"},{"Articulo":"IPHONE 17 PRO MAX (256GB) ESIM","SKU":"UST-IP17PM256EOG","IMEI":"358419942568510","Ultimo_movimiento":"Factura de proveedor","Documento":"FAC-SC-07666","Contacto":"JASSUARA HUEMBES","Fecha_ultimo_movimiento":"2026-09-26","Bodega":"MS","Costo":1000,"Estatus":"available"},{"Articulo":"IPHONE 17 PRO MAX (256GB) ESIM","SKU":"UST-IP17PM256EBT","IMEI":"353263420648195","Ultimo_movimiento":"Factura de proveedor","Documento":"FAC-SC-07712","Contacto":"DEYLING VILLANUEVA","Fecha_ultimo_movimiento":"2026-09-26","Bodega":"MS","Costo":980,"Estatus":"available"},{"Articulo":"IPHONE 17 PRO MAX (256GB) ESIM","SKU":"UST-IP17PM256EOG","IMEI":"358105430002050","Ultimo_movimiento":"Factura de proveedor","Documento":"FAC-SC-07697","Contacto":"ANA MOLINA","Fecha_ultimo_movimiento":"2026-10-02","Bodega":"MS","Costo":1050,"Estatus":"available"},{"Articulo":"IPHONE 17 PRO MAX (256GB) ESIM","SKU":"UST-IP17PM256ESL","IMEI":"351046979688882","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16001","Contacto":"","Fecha_ultimo_movimiento":"2026-10-16","Bodega":"AS","Costo":1000,"Estatus":"available"},{"Articulo":"IPHONE 17 PRO MAX (256GB) ESIM","SKU":"UST-IP17PM256EBT","IMEI":"355190204063911","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16001","Contacto":"","Fecha_ultimo_movimiento":"2026-10-16","Bodega":"AS","Costo":1000,"Estatus":"available"},{"Articulo":"IPHONE 17 PRO MAX (256GB) ESIM","SKU":"UST-IP17PM256EBT","IMEI":"351046970747158","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16001","Contacto":"","Fecha_ultimo_movimiento":"2026-10-16","Bodega":"AS","Costo":1000,"Estatus":"available"},{"Articulo":"IPHONE 17 PRO MAX (256GB) ESIM","SKU":"UST-IP17PM256EOG","IMEI":"350247153840585","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16001","Contacto":"","Fecha_ultimo_movimiento":"2026-10-16","Bodega":"AS","Costo":1000,"Estatus":"available"},{"Articulo":"IPHONE 17 PRO MAX (256GB) ESIM","SKU":"UST-IP17PM256EOG","IMEI":"357999606509919","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16001","Contacto":"","Fecha_ultimo_movimiento":"2026-10-16","Bodega":"AS","Costo":1000,"Estatus":"available"},{"Articulo":"IPHONE 17 PRO MAX (256GB) ESIM","SKU":"UST-IP17PM256EOG","IMEI":"350247158077035","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16001","Contacto":"","Fecha_ultimo_movimiento":"2026-10-16","Bodega":"AS","Costo":1000,"Estatus":"available"},{"Articulo":"IPHONE 17 PRO MAX (256GB) ESIM","SKU":"UST-IP17PM256EOG","IMEI":"353837419174329","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16001","Contacto":"","Fecha_ultimo_movimiento":"2026-10-16","Bodega":"AS","Costo":1000,"Estatus":"available"},{"Articulo":"IPHONE 17 PRO MAX (256GB) ESIM","SKU":"UST-IP17PM256EOG","IMEI":"359802895107973","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16001","Contacto":"","Fecha_ultimo_movimiento":"2026-10-16","Bodega":"AS","Costo":1000,"Estatus":"available"},{"Articulo":"IPHONE 17 PRO MAX (256GB) ESIM","SKU":"UST-IP17PM256EOG","IMEI":"356188165982144","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16149","Contacto":"","Fecha_ultimo_movimiento":"2026-10-21","Bodega":"SC-CALL","Costo":890,"Estatus":"available"},{"Articulo":"IPHONE 17 PRO MAX (256GB) ESIM","SKU":"UST-IP17PM256ESL","IMEI":"357999607206242","Ultimo_movimiento":"Factura de proveedor","Documento":"FAC-SC-07984","Contacto":"NAHUM ADRIAN ESTRADA HERRRA","Fecha_ultimo_movimiento":"2026-10-21","Bodega":"MS","Costo":890,"Estatus":"available"},{"Articulo":"IPHONE 17 PRO MAX (256GB) ESIM","SKU":"UST-IP17PM256EOG","IMEI":"350889865521779","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16373","Contacto":"","Fecha_ultimo_movimiento":"2026-10-28","Bodega":"MY","Costo":1000,"Estatus":"available"},{"Articulo":"IPHONE 17 PRO MAX (256GB) ESIM","SKU":"UST-IP17PM256EOG","IMEI":"357999602104384","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16373","Contacto":"","Fecha_ultimo_movimiento":"2026-10-28","Bodega":"MY","Costo":1000,"Estatus":"available"},{"Articulo":"IPHONE 17 PRO MAX (256GB) ESIM","SKU":"UST-IP17PM256EBT","IMEI":"359105438496973","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16373","Contacto":"","Fecha_ultimo_movimiento":"2026-10-28","Bodega":"MY","Costo":890,"Estatus":"available"},{"Articulo":"IPHONE 17 PRO MAX (256GB) ESIM","SKU":"UST-IP17PM256EOG","IMEI":"35482494130766","Ultimo_movimiento":"Factura de proveedor","Documento":"FAC-SC-08089","Contacto":"ANA MOLINA","Fecha_ultimo_movimiento":"2026-11-04","Bodega":"MS","Costo":890,"Estatus":"available"},{"Articulo":"PHONE 15 PRO MAX (256GB) ESIM","SKU":"UST-IP15PM256NT","IMEI":"359428798359287","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16803","Contacto":"","Fecha_ultimo_movimiento":"2026-11-10","Bodega":"SC-CALL","Costo":415,"Estatus":"available"},{"Articulo":"PHONE 15 PROMAX(256GB) ESIM","SKU":"UST-IP15PM256WT","IMEI":"359711537000712","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16803","Contacto":"","Fecha_ultimo_movimiento":"2026-11-10","Bodega":"SC-CALL","Costo":415,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY S22 ULTRA (128GB/8GB RAM)","SKU":"UST-SM22U128N","IMEI":"354425641131751","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16368","Contacto":"","Fecha_ultimo_movimiento":"2026-10-28","Bodega":"AS","Costo":333,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY S22 ULTRA (128GB/8GB RAM)","SKU":"UST-SM22U128N","IMEI":"350962371934081","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16368","Contacto":"","Fecha_ultimo_movimiento":"2026-10-28","Bodega":"AS","Costo":333,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY S22 ULTRA (128GB/8GB RAM)","SKU":"UST-SM22U128BG","IMEI":"353722791365069","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16368","Contacto":"","Fecha_ultimo_movimiento":"2026-10-28","Bodega":"AS","Costo":333,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY S22 ULTRA (128GB/8GB RAM)","SKU":"UST-SM22U128BG","IMEI":"353722790700134","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16368","Contacto":"","Fecha_ultimo_movimiento":"2026-10-28","Bodega":"AS","Costo":333,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY S22 ULTRA (128GB/8GB RAM)","SKU":"UST-SM22U128N","IMEI":"354425641129953","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16373","Contacto":"","Fecha_ultimo_movimiento":"2026-10-28","Bodega":"MY","Costo":333,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY S22 ULTRA (128GB/8GB RAM)","SKU":"UST-SM22U128N","IMEI":"358132921417373","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16373","Contacto":"","Fecha_ultimo_movimiento":"2026-10-28","Bodega":"MY","Costo":333,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY S22 ULTRA (128GB/8GB RAM)","SKU":"UST-SM22U128BG","IMEI":"353722791048673","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16373","Contacto":"","Fecha_ultimo_movimiento":"2026-10-28","Bodega":"MY","Costo":333,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY S23 ULTRA 5G (512GB/12GB RAM)","SKU":"UST-SM23U512NG","IMEI":"355149492630161","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16384","Contacto":"","Fecha_ultimo_movimiento":"2026-10-28","Bodega":"MY","Costo":450,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY S23+ 5G (512GB/8GB RAM)","SKU":"UST-SM23U512WT","IMEI":"358129191320311","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16001","Contacto":"","Fecha_ultimo_movimiento":"2026-10-16","Bodega":"AS","Costo":260,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY S25 FE (256GB/8GB RAM) DS","SKU":"UST-S25FE256JB","IMEI":"352550350103378","Ultimo_movimiento":"Factura de proveedor","Documento":"FAC-SC-08028","Contacto":"BRANDON HERNANDEZ","Fecha_ultimo_movimiento":"2026-10-26","Bodega":"MY","Costo":360,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY S25 ULTRA 5G (1TB_12GB RAM) DS","SKU":"UST-SM25U1TBTG","IMEI":"356840966243122","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-13625","Contacto":"","Fecha_ultimo_movimiento":"2026-08-04","Bodega":"AS","Costo":800,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY S25 ULTRA 5G (1TB_12GB RAM) DS","SKU":"UST-SM25U1TBSL","IMEI":"356840965907909","Ultimo_movimiento":"Factura de proveedor","Documento":"FAC-SC-07443","Contacto":"MARIA FERNANDA","Fecha_ultimo_movimiento":"2026-09-03","Bodega":"MS","Costo":829,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY S25 ULTRA 5G (256GB/12GB RAM) DS","SKU":"UST-SM25U256AZ","IMEI":"35355177108704","Ultimo_movimiento":"Factura de proveedor","Documento":"FAC-SC07635","Contacto":"KATHERINE MEJIA","Fecha_ultimo_movimiento":"2026-09-22","Bodega":"MS","Costo":650,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY S25 ULTRA 5G (256GB/12GB RAM) DS","SKU":"UST-SM25U256TG","IMEI":"353551771226169","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16716","Contacto":"","Fecha_ultimo_movimiento":"2026-11-07","Bodega":"MY","Costo":570,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY S25 ULTRA 5G (256GB_12GB RAM) DS","SKU":"UST-SM25U256SLB","IMEI":"351589495595172","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-13625","Contacto":"","Fecha_ultimo_movimiento":"2026-08-04","Bodega":"AS","Costo":650,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY S25 ULTRA 5G (256GB_12GB RAM) DS","SKU":"UST-SM25U256SLB","IMEI":"358574635745658","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-13781","Contacto":"","Fecha_ultimo_movimiento":"2026-08-08","Bodega":"MS","Costo":665,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY S25 ULTRA 5G (256GB_12GB RAM) DS","SKU":"UST-SM25U256BLK","IMEI":"352512146698863","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-13865","Contacto":"","Fecha_ultimo_movimiento":"2026-08-12","Bodega":"AS","Costo":665,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY S25 ULTRA 5G (256GB_12GB RAM) DS","SKU":"UST-SM25U256BLK","IMEI":"350023382508685","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-13865","Contacto":"","Fecha_ultimo_movimiento":"2026-08-12","Bodega":"AS","Costo":665,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY S25 ULTRA 5G (256GB_12GB RAM) DS","SKU":"UST-SM25U256BLK","IMEI":"358754773662796","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-13960","Contacto":"","Fecha_ultimo_movimiento":"2026-08-15","Bodega":"MY","Costo":665,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY S25 ULTRA 5G (256GB_12GB RAM) DS","SKU":"UST-SM25U256BLK","IMEI":"352512141033447","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-14089","Contacto":"","Fecha_ultimo_movimiento":"2026-08-19","Bodega":"MY","Costo":665,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY S25 ULTRA 5G (256GB_12GB RAM) DS","SKU":"UST-SM25U256BLK","IMEI":"33551774130079","Ultimo_movimiento":"Factura de proveedor","Documento":"FAC-SC-07370","Contacto":"JASSUARA HUEMBES","Fecha_ultimo_movimiento":"2026-08-28","Bodega":"MS","Costo":650,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY S25 ULTRA 5G (256GB_12GB RAM) DS","SKU":"UST-SM25U256WHT","IMEI":"353551772261439","Ultimo_movimiento":"Factura de proveedor","Documento":"FAC-SC-07639","Contacto":"JASSUARA HUEMBES","Fecha_ultimo_movimiento":"2026-09-22","Bodega":"MS","Costo":650,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY S25 ULTRA 5G (256GB_12GB RAM) DS","SKU":"UST-SM25U256BLK","IMEI":"353551774760750","Ultimo_movimiento":"Factura de proveedor","Documento":"FAC-SC-07597","Contacto":"MARIA FERNANDA","Fecha_ultimo_movimiento":"2026-09-21","Bodega":"MS","Costo":650,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY S25 ULTRA 5G (256GB_12GB RAM) DS","SKU":"UST-SM25U256BLK","IMEI":"3535511771336687","Ultimo_movimiento":"Factura de proveedor","Documento":"FAC-MS-34246","Contacto":"MARIA FERNANDA","Fecha_ultimo_movimiento":"2026-10-02","Bodega":"MS","Costo":570,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY S25 ULTRA 5G (256GB_12GB RAM) DS","SKU":"UST-SM25U256BLK","IMEI":"359258780554748","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16001","Contacto":"","Fecha_ultimo_movimiento":"2026-10-16","Bodega":"AS","Costo":665,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY S25 ULTRA 5G (256GB_12GB RAM) DS","SKU":"UST-SM25U256BLK","IMEI":"358574632838050","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16001","Contacto":"","Fecha_ultimo_movimiento":"2026-10-16","Bodega":"AS","Costo":665,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY S25 ULTRA 5G (256GB_12GB RAM) DS","SKU":"UST-SM25U256BLK","IMEI":"351878872274398","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16491","Contacto":"","Fecha_ultimo_movimiento":"2026-10-31","Bodega":"MS","Costo":665,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY S25 ULTRA 5G (512GB/12GB RAM) DS","SKU":"UST-SM25U512GRY","IMEI":"356899252151290","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-13488","Contacto":"","Fecha_ultimo_movimiento":"2026-07-30","Bodega":"AS","Costo":700,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY S25 ULTRA 5G (512GB/12GB RAM) DS","SKU":"UST-SM25U512AZ","IMEI":"356899252194522","Ultimo_movimiento":"Factura de proveedor","Documento":"FAC-SC-07389","Contacto":"NAHUM ADRIAN ESTRADA HERRRA","Fecha_ultimo_movimiento":"2026-08-31","Bodega":"MS","Costo":720,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY S25 ULTRA 5G (512GB/12GB RAM) DS","SKU":"UST-SM25U512BLACK","IMEI":"356899251668112","Ultimo_movimiento":"Factura de proveedor","Documento":"FAC-SC-07455","Contacto":"ANA MOLINA","Fecha_ultimo_movimiento":"2026-09-04","Bodega":"MS","Costo":720,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY S25 ULTRA 5G (512GB/12GB RAM) DS","SKU":"UST-SM25U512BLACK","IMEI":"356899251210808","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16001","Contacto":"","Fecha_ultimo_movimiento":"2026-10-16","Bodega":"AS","Costo":720,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY S25 ULTRA 5G (512GB/12GB RAM) DS","SKU":"UST-SM25U512AZ","IMEI":"356899251675075","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16001","Contacto":"","Fecha_ultimo_movimiento":"2026-10-16","Bodega":"AS","Costo":750,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY S25 ULTRA 5G (512GB/12GB RAM) DS","SKU":"UST-SM25U512TG","IMEI":"356899251943424","Ultimo_movimiento":"Factura de proveedor","Documento":"FAC-SC-08044","Contacto":"JASSUARA HUEMBES","Fecha_ultimo_movimiento":"2026-10-27","Bodega":"MS","Costo":665,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY S25 ULTRA 5G (512GB/12GB RAM) DS","SKU":"UST-SM25U512WT","IMEI":"354237929579183","Ultimo_movimiento":"Factura de proveedor","Documento":"FAC-SC-07820","Contacto":"ANA MOLINA","Fecha_ultimo_movimiento":"2026-10-05","Bodega":"MS","Costo":665,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY S25 ULTRA 5G (512GB/12GB RAM) DS","SKU":"UST-SM25U512WT","IMEI":"356899251585514","Ultimo_movimiento":"Factura de proveedor","Documento":"FAC-SC-08169","Contacto":"JASSUARA HUEMBES","Fecha_ultimo_movimiento":"2026-11-10","Bodega":"MS","Costo":665,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY S26 5G (256GB/12GB RAM) DS","SKU":"UST-SM26256N","IMEI":"353178410735168","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16010","Contacto":"","Fecha_ultimo_movimiento":"2026-10-16","Bodega":"AS","Costo":630,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY S26 ULTRA 5G (256GB/12GB RAM)","SKU":"UST-SM26U256WT","IMEI":"353885922636482","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-14056","Contacto":"","Fecha_ultimo_movimiento":"2026-08-18","Bodega":"AS","Costo":855,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY S26 ULTRA 5G (256GB/12GB RAM)","SKU":"UST-SM26U256WT","IMEI":"353885922288094","Ultimo_movimiento":"Factura de proveedor","Documento":"FAC-SC-07617","Contacto":"ANA MOLINA","Fecha_ultimo_movimiento":"2026-09-21","Bodega":"MS","Costo":855,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY S26 ULTRA 5G (256GB/12GB RAM)","SKU":"UST-SM26U256VL","IMEI":"353885922878019","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-15291","Contacto":"","Fecha_ultimo_movimiento":"2026-09-26","Bodega":"AS","Costo":865,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY S26 ULTRA 5G (512GB/12GB RAM) DS","SKU":"UST-SM26U512BLC","IMEI":"356028670781955","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-15291","Contacto":"","Fecha_ultimo_movimiento":"2026-09-26","Bodega":"AS","Costo":955,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY S26 ULTRA 5G (512GB/12GB RAM) DS","SKU":"UST-SM26U512VL","IMEI":"356028670956854","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16001","Contacto":"","Fecha_ultimo_movimiento":"2026-10-16","Bodega":"AS","Costo":920,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY S26 ULTRA 5G (512GB/12GB RAM) DS","SKU":"UST-SM26U512VL","IMEI":"356028673907094","Ultimo_movimiento":"Factura de proveedor","Documento":"FAC-SC-08050","Contacto":"ANA MOLINA","Fecha_ultimo_movimiento":"2026-10-29","Bodega":"MS","Costo":920,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY S26 ULTRA 5G (512GB/12GB RAM) DS","SKU":"UST-SM26U512VL","IMEI":"356028678682049","Ultimo_movimiento":"Factura de proveedor","Documento":"FAC-SC-07681","Contacto":"ANA MOLINA","Fecha_ultimo_movimiento":"2026-09-24","Bodega":"MS","Costo":920,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY S26 ULTRA 5G (512GB/12GB RAM) DS","SKU":"UST-SM26U512BK","IMEI":"356028671395706","Ultimo_movimiento":"Factura de proveedor","Documento":"FAC-SC-08179","Contacto":"DEYLING VILLANUEVA","Fecha_ultimo_movimiento":"2026-11-10","Bodega":"MS","Costo":880,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY TAB A11+  (128GB_6GB RAM) WIFI","SKU":"UST-TABA11+128WFGR","IMEI":"R5GL50MC7VH","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-15488","Contacto":"","Fecha_ultimo_movimiento":"2026-10-02","Bodega":"AS","Costo":195,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY TAB S9 ULTRA (512GB_12GB RAM) WIFI","SKU":"UST-TABS9U512GF","IMEI":"R52W70JLLVN","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16327","Contacto":"","Fecha_ultimo_movimiento":"2026-10-27","Bodega":"SC","Costo":550,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY WATCH 6 CLASSIC 47MM","SKU":"UST-SMGW6C47MMN","IMEI":"RFAY50J6LXR","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-14661","Contacto":"","Fecha_ultimo_movimiento":"2026-09-04","Bodega":"AS","Costo":100,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY WATCH 7 40MM","SKU":"UST-SMGW740MMV","IMEI":"RFAY12BV3VF","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-14661","Contacto":"","Fecha_ultimo_movimiento":"2026-09-04","Bodega":"AS","Costo":100,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY WATCH 7 40MM","SKU":"UST-SGW740MMCM","IMEI":"RFAY41ZVSGJ","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-14661","Contacto":"","Fecha_ultimo_movimiento":"2026-09-04","Bodega":"AS","Costo":100,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY WATCH 7 44MM","SKU":"UST-SMGW744MMS","IMEI":"RFAX910ETKT","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-14661","Contacto":"","Fecha_ultimo_movimiento":"2026-09-04","Bodega":"AS","Costo":95,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY WATCH 8 40MM","SKU":"UST-SMWT840MMSIL","IMEI":"RFAY70YPMHZ","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-15291","Contacto":"","Fecha_ultimo_movimiento":"2026-09-26","Bodega":"AS","Costo":150,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY WATCH 8 44MM","SKU":"UST-WATH844MMSL","IMEI":"RFAY71HLKXA","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-13773","Contacto":"","Fecha_ultimo_movimiento":"2026-08-08","Bodega":"AS","Costo":160,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY WATCH 8 CLASSIC 46MM","SKU":"UST-SGW8CL46MMBL","IMEI":"RFAY90XFYTD","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-14661","Contacto":"","Fecha_ultimo_movimiento":"2026-09-04","Bodega":"AS","Costo":200,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY Z FiLP 6 (256GB/12GB RAM)","SKU":"UST-SMZF6256GY","IMEI":"357362190012784","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-15631","Contacto":"","Fecha_ultimo_movimiento":"2026-10-06","Bodega":"SC","Costo":280,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY Z FOLD 7 (512GB/12GB RAM)","SKU":"UST-SMZF7512SL","IMEI":"350144375333665","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-15291","Contacto":"","Fecha_ultimo_movimiento":"2026-09-26","Bodega":"AS","Costo":950,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY Z FOLD 7 (512GB/12GB RAM) DS","SKU":"UST-SGZF7512SLW","IMEI":"350144374029926","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-15291","Contacto":"","Fecha_ultimo_movimiento":"2026-09-26","Bodega":"AS","Costo":962.5,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY Z FOLD 7 (512GB/12GB RAM) DS","SKU":"UST-SGZF7512SLW","IMEI":"350144375346949","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-15291","Contacto":"","Fecha_ultimo_movimiento":"2026-09-26","Bodega":"AS","Costo":962.5,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY Z FOLD 7 (512GB/12GB RAM) DS","SKU":"UST-SGZF7512JB","IMEI":"350144374061697","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-15291","Contacto":"","Fecha_ultimo_movimiento":"2026-09-26","Bodega":"AS","Costo":992,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY Z FOLD 7 (512GB/12GB RAM) DS","SKU":"UST-SGZF7512S+1SGY","IMEI":"350144374061796","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-15291","Contacto":"","Fecha_ultimo_movimiento":"2026-09-26","Bodega":"AS","Costo":1105,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY Z FOLD 8 (512GB/12GB RAM) DS","SKU":"UST-SMZF8512LV","IMEI":"353584603333077","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16250","Contacto":"","Fecha_ultimo_movimiento":"2026-10-24","Bodega":"MS","Costo":1200,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY Z FOLD 8 ULTRA (512GB/12GB RAM) DS","SKU":"UST-SMZF8U512GF","IMEI":"352301493070052","Ultimo_movimiento":"Orden de transferencia","Documento":"TO-16001","Contacto":"","Fecha_ultimo_movimiento":"2026-10-16","Bodega":"AS","Costo":1300,"Estatus":"available"},{"Articulo":"SAMSUNG GALAXY Z FOLD 8 ULTRA (512GB/12GB RAM) DS","SKU":"UST-SMZF8U512GF","IMEI":"353584603702081","Ultimo_movimiento":"Factura de proveedor","Documento":"FAC-SC-08184","Contacto":"ANA MOLINA","Fecha_ultimo_movimiento":"2026-11-10","Bodega":"MS","Costo":1200,"Estatus":"available"}]}};
+</script>
+<script src="motor.js"></script>
+</head>
+<body>
+<div id="dash-root">
+<style>
+#dash-root { --dash-gutter: clamp(16px, 3vw, 32px); }
+.cb { position: relative; font-family: var(--font-anthropic-sans); color: var(--color-fg); max-width: 1400px; margin-inline: auto; display: flex; flex-direction: column; gap: var(--cds-gap-lg); padding-bottom: var(--cds-pad-xl); }
+.cb-head h1 { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; line-height: 1.2; }
+.cb-head p { margin: var(--cds-gap-xs) 0 0; color: var(--color-fg-muted); font-size: var(--cds-font-size-body); max-width: 70ch; }
+.cb-filters { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm) var(--cds-gap-md); align-items: flex-end; background: var(--color-bg); padding: var(--cds-pad-sm) 0; border-bottom: 1px solid var(--color-border-line); }
+.cb-f { display: flex; flex-direction: column; gap: 2px; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.cb-f input, .cb-f select, .cb-inv-tools input, .cb-inv-tools select { font: inherit; font-size: var(--cds-font-size-body); color: var(--color-fg); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 4px 8px; min-height: 32px; }
+.cb-seg { display: inline-flex; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); overflow: hidden; }
+.cb-seg button { font: inherit; font-size: var(--cds-font-size-body); border: 0; background: var(--color-panel); color: var(--color-fg-muted); padding: 4px 12px; min-height: 32px; cursor: pointer; }
+.cb-seg button[aria-pressed="true"] { background: var(--color-fg); color: var(--color-bg); }
+.cb-btn { font: inherit; font-size: var(--cds-font-size-body); border: 1px solid var(--color-border-line); background: transparent; color: var(--color-fg); border-radius: var(--cds-radius); padding: 4px 12px; min-height: 32px; cursor: pointer; }
+.cb-section { display: flex; flex-direction: column; gap: var(--cds-gap-md); scroll-margin-top: 80px; }
+.cb-section > h2 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: var(--cds-gap-md) 0 0; display: flex; align-items: baseline; gap: var(--cds-gap-sm); }
+.cb-section > h2 span { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-weight: 400; }
+.cb-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: var(--cds-gap-md); }
+.cb-kpi { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-md) var(--cds-pad-lg); display: flex; flex-direction: column; gap: 4px; min-height: 108px; }
+.cb-kpi .lbl { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.cb-kpi .val { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); font-variant-numeric: tabular-nums; line-height: 1.15; }
+.cb-kpi .sub { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
+.cb-kpi.warn .val { color: var(--color-warn); }
+.cb-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr)); gap: var(--cds-gap-md); }
+.cb-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: flex; flex-direction: column; gap: var(--cds-gap-sm); min-width: 0; }
+.cb-card h3 { margin: 0; font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); }
+.cb-card .note { margin: 0; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.cb-chart { position: relative; min-height: 260px; }
+.cb-chart svg { display: block; }
+.cb-fail { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: inherit; height: 100%; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.cb-fail::before { content: ""; width: .375rem; height: .375rem; border-radius: 50%; background: var(--color-bad); }
+.cb-empty { display: flex; align-items: center; justify-content: center; min-height: inherit; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+[data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
+.cb-tip { position: absolute; pointer-events: none; z-index: 20; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; display: none; max-width: 280px; }
+.cb-tip .t { color: var(--cds-text-secondary); margin-bottom: 2px; }
+.cb-tip .r { display: flex; gap: 6px; align-items: center; justify-content: space-between; }
+.cb-tip .sw { width: 8px; height: 8px; border-radius: 2px; flex: none; }
+.cb-tip .r span:last-child { margin-left: 12px; color: var(--color-fg); }
+.cb-donut { display: flex; flex-wrap: wrap; align-items: center; gap: var(--cds-gap-lg); min-height: 260px; }
+.cb-donut svg { flex: none; }
+.cb-legend { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--cds-gap-sm); flex: 1; min-width: 10rem; }
+.cb-legend li { display: grid; grid-template-columns: 12px 1fr auto; gap: 8px; align-items: baseline; font-size: var(--cds-font-size-body); font-variant-numeric: tabular-nums; }
+.cb-legend .sw { width: 10px; height: 10px; border-radius: 3px; align-self: center; }
+.cb-legend .v { text-align: right; }
+.cb-legend .v small { display: block; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.cb-hbars { display: flex; flex-direction: column; gap: 6px; min-height: 260px; }
+.cb-hbar { display: grid; grid-template-columns: minmax(7rem, 11rem) 1fr auto; gap: 8px; align-items: center; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
+.cb-hbar .n { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--color-fg); }
+.cb-hbar .b { height: 14px; border-radius: 4px; background: var(--cds-chart-grid); position: relative; overflow: hidden; }
+.cb-hbar .b i { position: absolute; inset: 0 auto 0 0; border-radius: 4px; }
+.cb-hbar .v { min-width: 4.5rem; text-align: right; }
+.cb-tablewrap { overflow: auto; max-height: 560px; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); }
+.cb table { border-collapse: separate; border-spacing: 0; width: 100%; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
+.cb th, .cb td { padding: 6px 10px; text-align: left; border-bottom: 1px solid var(--color-border-line); white-space: nowrap; }
+.cb th { position: sticky; top: 0; background: var(--color-panel); z-index: 2; font-weight: var(--cds-font-weight-medium); color: var(--color-fg-muted); }
+.cb th button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+.cb td.num, .cb th.num { text-align: right; }
+.cb-matrix th:first-child, .cb-matrix td:first-child { position: sticky; left: 0; background: var(--color-panel); z-index: 1; }
+.cb-matrix th:first-child { z-index: 3; }
+.cb-matrix td .m { display: block; color: var(--color-fg); }
+.cb-matrix td .c { display: block; color: var(--color-fg-muted); }
+.cb-matrix tr.tot td { font-weight: var(--cds-font-weight-medium); border-top: 2px solid var(--color-border-line); }
+.cb-matrix td.zero { color: var(--color-fg-muted); }
+.cb-stack { display: flex; flex-direction: column; gap: 10px; }
+.cb-stack .row { display: grid; grid-template-columns: minmax(6rem, 9rem) 1fr; gap: 8px; align-items: center; font-size: var(--cds-font-size-caption); }
+.cb-stack .bar { display: flex; height: 16px; border-radius: 4px; overflow: hidden; background: var(--cds-chart-grid); }
+.cb-stack .bar i { height: 100%; }
+.cb-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+.cb-badge { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: var(--cds-font-size-caption); white-space: nowrap; }
+.cb-badge.transito { color: var(--color-warn); background: color-mix(in srgb, var(--color-warn) 14%, transparent); }
+.cb-badge.pend { color: var(--color-bad); background: color-mix(in srgb, var(--color-bad) 14%, transparent); }
+.cb-badge.ok { color: var(--color-ok); background: color-mix(in srgb, var(--color-ok) 12%, transparent); }
+.cb-badge.hist { color: var(--color-fg-muted); background: var(--cds-chart-grid); }
+.cb-inv-tools { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm); align-items: center; }
+.cb-inv-tools input[type=search] { min-width: 14rem; flex: 1; }
+.cb-inv-tools label { display: inline-flex; align-items: center; gap: 6px; font-size: var(--cds-font-size-body); }
+.cb-inv-sum { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+tr.alert-t td { background: color-mix(in srgb, var(--color-warn) 6%, transparent); }
+tr.alert-p td { background: color-mix(in srgb, var(--color-bad) 6%, transparent); }
+.cb td.wrap { white-space: normal; min-width: 14rem; }
+.cb-skel { min-height: 1em; }
+
+.cb { --cb-red: #D7141A; --cb-red-dk: #A50E13; --cb-red-lt: #F07A7E; --cb-ink: #1C1C1E; --cb-steel: #6B7280; --cb-silver: #B8BEC6;
+  --cb-accent-bg: color-mix(in srgb, var(--cb-red) 7%, var(--color-panel)); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .cb { --cb-ink: #E8E8EA; --cb-red: #EF3B41; --cb-red-lt: #F7A3A6; --cb-steel: #9CA3AF; --cb-silver: #5B616B; } }
+:root[data-theme="dark"] .cb { --cb-ink: #E8E8EA; --cb-red: #EF3B41; --cb-red-lt: #F7A3A6; --cb-steel: #9CA3AF; --cb-silver: #5B616B; }
+.cb-brand { display: flex; align-items: center; gap: var(--cds-gap-lg); flex-wrap: wrap; background: linear-gradient(100deg, #141416 0%, #26262A 62%, #3A0C0E 100%); color: #fff; border-radius: var(--cds-radius); padding: var(--cds-pad-lg) var(--cds-pad-xl); border-bottom: 4px solid var(--cb-red); }
+.cb-logo { flex: none; background: #fff; border-radius: 10px; padding: 6px 10px; display: flex; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,.35); }
+.cb-logo img { display: block; height: 64px; width: auto; }
+.cb-brand .cb-head { flex: 1; min-width: 16rem; }
+.cb-brand .eyebrow { font-size: var(--cds-font-size-caption); letter-spacing: .08em; text-transform: uppercase; color: #FF6B70; margin: 0 0 2px; }
+.cb-brand h1 { color: #fff; }
+.cb-brand .cb-head p { color: rgba(255,255,255,.78); }
+.cb-brand [data-dash-source-state=empty] { color: transparent; }
+.cb-seg button[aria-pressed="true"] { background: var(--cb-red) !important; color: #fff !important; }
+.cb-btn:hover { border-color: var(--cb-red); color: var(--cb-red); }
+.cb-f input:focus, .cb-f select:focus, .cb-inv-tools input:focus, .cb-inv-tools select:focus { outline: 2px solid color-mix(in srgb, var(--cb-red) 45%, transparent); outline-offset: 0; border-color: var(--cb-red); }
+.cb-section > h2 { padding-left: 10px; border-left: 4px solid var(--cb-red); }
+.cb-kpi { border-top: 3px solid var(--cb-ink); }
+.cb-kpi:first-child { border-top-color: var(--cb-red); background: var(--cb-accent-bg); }
+.cb-kpi:first-child .val { color: var(--cb-red); }
+.cb-kpi.warn { border-top-color: var(--color-warn); }
+.cb-card h3 { color: var(--cb-ink); }
+.cb th { color: var(--cb-ink); border-bottom: 2px solid var(--cb-red); }
+.cb-matrix tr.tot td { background: var(--cb-accent-bg); border-top: 2px solid var(--cb-red); }
+.cb-matrix tr.tot td:first-child { background: var(--cb-accent-bg); }
+.cb-matrix td .m { font-weight: var(--cds-font-weight-medium); }
+.cb tbody tr:hover td { background: color-mix(in srgb, var(--cb-red) 5%, transparent); }
+.cb-foot { display: flex; align-items: center; gap: 10px; justify-content: center; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); border-top: 1px solid var(--color-border-line); padding-top: var(--cds-pad-md); }
+.cb-foot img { height: 26px; background: #fff; border-radius: 4px; padding: 2px 4px; }
+tr.x-a1 td { background: color-mix(in srgb, #F2C94C 18%, transparent); }
+tr.x-a2 td { background: color-mix(in srgb, #F2994A 20%, transparent); }
+tr.x-a3 td { background: color-mix(in srgb, #EB5757 18%, transparent); }
+.x-pill { display:inline-block; padding:1px 8px; border-radius:999px; font-size:var(--cds-font-size-caption); }
+.x-pill.a1 { background: color-mix(in srgb, #F2C94C 30%, transparent); } .x-pill.a2 { background: color-mix(in srgb, #F2994A 32%, transparent); } .x-pill.a3 { background: color-mix(in srgb, #EB5757 30%, transparent); }
+.x-own tbody tr { cursor: pointer; }
+.x-own tbody tr.sel td { background: color-mix(in srgb, var(--cb-red) 10%, transparent); }
+.x-bar { display:inline-block; height:8px; border-radius:4px; background: var(--cb-red); vertical-align: middle; margin-right:6px; }
+.cb-actions { display:flex; flex-direction:column; align-items:flex-end; gap:6px; margin-left:auto; }
+.cb-actions .row { display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+.cb-act { font: inherit; font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); display:inline-flex; align-items:center; gap:6px; border-radius: var(--cds-radius); padding: 8px 14px; cursor:pointer; border:1px solid rgba(255,255,255,.35); background: rgba(255,255,255,.08); color:#fff; }
+.cb-act:hover { background: rgba(255,255,255,.16); }
+.cb-act.primary { background: var(--cb-red); border-color: var(--cb-red); }
+.cb-act.primary:hover { background: #B91016; }
+.cb-act[disabled] { opacity:.6; cursor:progress; }
+.cb-act svg { width:16px; height:16px; flex:none; }
+.cb-act.spin svg { animation: cbspin 1s linear infinite; }
+@keyframes cbspin { to { transform: rotate(360deg); } }
+.cb-act-msg { font-size: var(--cds-font-size-caption); color: rgba(255,255,255,.75); min-height: 1em; text-align:right; max-width: 28rem; }
+</style>
+
+<div class="cb" id="cb">
+  <div class="cb-brand" id="resumen">
+    <div class="cb-logo"><img src="data:image/png;base64,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" alt="Solís Comercial"></div>
+    <header class="cb-head">
+      <p class="eyebrow">Programa Cashback · Trade-in</p>
+      <h1>Dashboard de Cashback / Trade-in</h1>
+      <p class="cb-takeaway" data-source="registros ventas">—</p>
+    </header>
+    <div class="cb-actions">
+      <div class="row">
+        <button type="button" class="cb-act primary cb-refresh" title="Vuelve a leer Cash Back (CRM) y ventas (Books) desde Zoho"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>Actualizar desde Zoho</button>
+        <button type="button" class="cb-act cb-export" title="Descarga un archivo HTML independiente con los datos actuales"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>Exportar a HTML</button>
+      </div>
+      <div class="cb-act-msg" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <div class="cb-filters" id="filtros">
+    <label class="cb-f">Desde<input class="f-start" type="date" min="2025-01-01" max="2099-12-31"></label>
+    <label class="cb-f">Hasta<input class="f-end" type="date" min="2025-01-01" max="2099-12-31"></label>
+    <label class="cb-f">Sucursal<select class="f-suc" data-source="registros"></select></label>
+    <label class="cb-f">Estatus<select class="f-est" data-source="registros"></select></label>
+    <div class="cb-f">Ver en
+      <div class="cb-seg f-modo" role="group" aria-label="Ver en">
+        <button type="button" data-v="monto">Monto $</button>
+        <button type="button" data-v="unidades">Unidades #</button>
+      </div>
+    </div>
+    <button type="button" class="cb-btn f-reset">Restablecer</button>
+  </div>
+
+  <section class="cb-section" id="registro">
+    <h2>1 · Análisis de registro de cashback <span class="per">—</span></h2>
+    <div class="cb-kpis" data-source="registros ventas">
+      <div class="cb-kpi"><span class="lbl">Monto acumulado de cashback</span><span class="val k-monto">—</span><span class="sub k-monto-s">—</span></div>
+      <div class="cb-kpi"><span class="lbl">Transacciones acumuladas</span><span class="val k-trx">—</span><span class="sub k-trx-s">—</span></div>
+      <div class="cb-kpi"><span class="lbl">Equipos recibidos</span><span class="val k-eq">—</span><span class="sub k-eq-s">—</span></div>
+      <div class="cb-kpi"><span class="lbl">% de las ventas (Zoho Books)</span><span class="val k-share">—</span><span class="sub k-share-s">—</span></div>
+      <div class="cb-kpi warn"><span class="lbl">Pendientes / en tránsito</span><span class="val k-pend">—</span><span class="sub k-pend-s">—</span></div>
+    </div>
+
+    <div class="cb-card" id="share">
+      <h3>Peso del cashback sobre las ventas</h3>
+      <p class="note">Valoración de cashback ÷ ventas facturadas en Zoho Books (todas las sucursales, sin anuladas ni borradores), por mes.</p>
+      <div class="cb-chart c-share" data-source="registros ventas"></div>
+    </div>
+
+    <div class="cb-grid">
+      <div class="cb-card" id="tendencia">
+        <h3>Tendencia mensual</h3>
+        <p class="note n-trend">—</p>
+        <div class="cb-chart c-trend" data-source="registros"></div>
+      </div>
+      <div class="cb-card" id="marcas">
+        <h3>Participación por marca</h3>
+        <p class="note n-brand">—</p>
+        <div class="cb-donut c-brand" data-source="equipos"></div>
+      </div>
+    </div>
+    <div class="cb-card" id="modelos">
+      <h3>Top 10 modelos recibidos</h3>
+      <p class="note n-models">—</p>
+      <div class="cb-hbars c-models" data-source="equipos"></div>
+    </div>
+  </section>
+
+  <section class="cb-section" id="operativo">
+    <h2>2 · Desglose operativo por sucursal y estatus</h2>
+    <div class="cb-card" id="matriz">
+      <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:center">
+        <h3>Desempeño mensual</h3>
+        <div class="cb-seg f-grupo" role="group" aria-label="Agrupar por">
+          <button type="button" data-v="sucursal">Por sucursal</button>
+          <button type="button" data-v="propietario">Por propietario de venta</button>
+        </div>
+      </div>
+      <p class="note">Cada celda: monto $ arriba, transacciones abajo. Promedio mensual sobre los meses del rango; ticket = monto ÷ transacciones.</p>
+      <div class="cb-tablewrap c-matrix" data-source="registros"></div>
+    </div>
+    <div class="cb-grid">
+      <div class="cb-card" id="estatus">
+        <h3>Desglose por estatus del registro</h3>
+        <p class="note">Estatus derivado de los campos Estatus, Recibido en caja y Recibido en operaciones.</p>
+        <div class="c-status" data-source="registros"></div>
+      </div>
+      <div class="cb-card" id="estatus-sucursal">
+        <h3>Estatus por sucursal</h3>
+        <p class="note n-stack">—</p>
+        <div class="cb-stack c-stack" data-source="registros"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cb-section" id="inventario">
+    <h2>3 · Control de inventario remanente <span>equipos ingresados por cashback</span></h2>
+    <div class="cb-card">
+      <div class="cb-inv-tools">
+        <input type="search" class="i-q" placeholder="Buscar cliente, IMEI, factura, N° CB…" aria-label="Buscar">
+        <select class="i-mod" aria-label="Modelo de equipo" data-source="equipos"></select>
+        <label><input type="checkbox" class="i-alert"> Solo pendientes / en tránsito</label>
+        <span class="cb-inv-sum">—</span>
+      </div>
+      <div class="cb-tablewrap">
+        <table class="c-inv" data-source="registros" data-row-key="Numero">
+          <thead><tr>
+            <th data-field="Alerta"><button type="button" data-k="Alerta">Alerta</button></th>
+            <th data-field="Numero"><button type="button" data-k="Numero">N° CB</button></th>
+            <th data-field="Fecha"><button type="button" data-k="Fecha">Fecha registro</button></th>
+            <th data-field="Cliente"><button type="button" data-k="Cliente">Cliente</button></th>
+            <th data-field="Modelo"><button type="button" data-k="Modelo">Equipo / modelo</button></th>
+            <th data-field="IMEI"><button type="button" data-k="IMEI">IMEI / eSIM</button></th>
+            <th data-field="Factura"><button type="button" data-k="Factura">Factura cashback</button></th>
+            <th data-field="Sucursal"><button type="button" data-k="Sucursal">Sucursal</button></th>
+            <th data-field="Estado"><button type="button" data-k="Estado">Estatus</button></th>
+            <th data-field="Total" class="num"><button type="button" data-k="Total">Total valoración</button></th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+  <section class="cb-section" id="existencias">
+    <h2>4 · Inventario de equipos recibidos en cashback <span>equipos usados disponibles por IMEI · reporte de números de serie de Zoho</span></h2>
+    <div class="cb-kpis" data-source="existencias_vinculadas">
+      <div class="cb-kpi"><span class="lbl">Equipos usados disponibles</span><span class="val x-tot">—</span><span class="sub x-tot-s">—</span></div>
+      <div class="cb-kpi"><span class="lbl">Vinculados a un cashback por IMEI</span><span class="val x-vin">—</span><span class="sub x-vin-s">—</span></div>
+      <div class="cb-kpi"><span class="lbl">Sin registro de cashback</span><span class="val x-sin">—</span><span class="sub x-sin-s">—</span></div>
+      <div class="cb-kpi"><span class="lbl">Antigüedad promedio</span><span class="val x-avg">—</span><span class="sub x-avg-s">—</span></div>
+      <div class="cb-kpi warn"><span class="lbl">Más de 60 días en existencia</span><span class="val x-60">—</span><span class="sub x-60-s">—</span></div>
+    </div>
+
+    <div class="cb-card" id="x-ejecutivos">
+      <h3>Existencias por ejecutivo que recibió el equipo</h3>
+      <p class="note">Equipos con ejecutivo identificado (cashback o factura de recepción). Clic en un ejecutivo para filtrar el detalle.</p>
+      <div class="cb-tablewrap x-own" data-source="existencias_vinculadas"></div>
+    </div>
+
+    <div class="cb-card" id="x-detalle">
+      <h3>Detalle por equipo</h3>
+      <p class="note">Cada IMEI disponible se busca en el módulo Cash Back. "IMEI con error de captura" = el IMEI del CRM difiere en 1–2 dígitos del de Zoho; conviene corregirlo en el CRM. Bodega = ubicación actual en Zoho; último movimiento = entrada o transferencia más reciente.</p>
+      <div class="cb-inv-tools">
+        <input type="search" class="x-q" placeholder="Buscar IMEI, modelo, N° CB, documento…" aria-label="Buscar equipo">
+        <select class="x-ownsel" aria-label="Ejecutivo" data-source="existencias_vinculadas"></select>
+        <select class="x-bodsel" aria-label="Bodega" data-source="existencias_vinculadas"></select>
+        <select class="x-vinsel" aria-label="Vínculo" data-source="existencias_vinculadas"></select>
+        <span class="cb-inv-sum x-sum">—</span>
+      </div>
+      <div class="cb-tablewrap">
+        <table class="x-tab" data-source="existencias_vinculadas" data-row-key="IMEI">
+          <thead><tr>
+            <th data-field="Marca"><button type="button" data-k="Marca">Marca</button></th>
+            <th data-field="Articulo"><button type="button" data-k="Articulo">Modelo</button></th>
+            <th data-field="IMEI"><button type="button" data-k="IMEI">IMEI / N° de serie</button></th>
+            <th data-field="Propietario"><button type="button" data-k="Propietario">Ejecutivo / propietario</button></th>
+            <th data-field="Fecha_Recepcion"><button type="button" data-k="Fecha_Recepcion">Fecha de recepción</button></th>
+            <th data-field="Dias_Existencia" class="num"><button type="button" data-k="Dias_Existencia">Días en existencia</button></th>
+            <th data-field="Bodega"><button type="button" data-k="Bodega">Bodega</button></th>
+            <th data-field="Fecha_Ultimo_Mov"><button type="button" data-k="Fecha_Ultimo_Mov">Último movimiento</button></th>
+            <th data-field="Dias_Sin_Movimiento" class="num"><button type="button" data-k="Dias_Sin_Movimiento">Días sin movimiento</button></th>
+            <th data-field="N_Cashback"><button type="button" data-k="N_Cashback">N° CB</button></th>
+            <th data-field="Vinculo"><button type="button" data-k="Vinculo">Vínculo</button></th>
+            <th data-field="Costo" class="num"><button type="button" data-k="Costo">Costo</button></th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="note" style="margin-top:6px">Color por días en existencia: <span class="x-pill a1">31–60</span> <span class="x-pill a2">61–90</span> <span class="x-pill a3">más de 90</span></p>
+    </div>
+  </section>
+
+  <footer class="cb-foot"><img src="data:image/png;base64,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" alt=""><span>Solís Comercial · Datos en vivo de Zoho CRM (Cash Back) y Zoho Books (facturación)</span></footer>
+  <div class="cb-tip" role="tooltip"></div>
+</div>
+
+</div>
+<script>
+dash.loader('cashback', {
+  description: 'Convierte la respuesta COQL de Zoho CRM en filas; si hay más de 2000 registros, pide la siguiente página con OFFSET.',
+  fn: async ({ answer, call, args }) => {
+    const parse = (a) => {
+      if (typeof a === 'string') { try { a = JSON.parse(a); } catch (e) { throw new Error(a.slice(0, 300)); } }
+      if (a && Array.isArray(a.content)) return parse(a.content.map((c) => c.text || '').join(''));
+      return a;
+    };
+    const take = (a) => {
+      a = parse(a);
+      const inner = a && a.data && Array.isArray(a.data.data) ? a.data : a;
+      if (!inner || !Array.isArray(inner.data)) throw new Error('Respuesta inesperada de Zoho CRM: ' + JSON.stringify(a).slice(0, 300));
+      return { rows: inner.data, more: !!(inner.info && inner.info.more_records) };
+    };
+    let { rows, more } = take(answer);
+    const all = rows.slice();
+    const q = args.body.select_query;
+    let off = 2000, n = 0;
+    while (more && n < 5) {
+      const r = take(await call('executeCOQLQuery', { body: { select_query: q.replace(/limit\s+\d+.*$/i, 'limit 2000 offset ' + off) } }));
+      all.push(...r.rows); more = r.more; off += 2000; n++;
+    }
+    return all;
+  },
+});
+
+dash.loader('ventas', {
+  description: 'Suma de facturas de Zoho Books por mes (una consulta por mes) menos las facturas anuladas y en borrador.',
+  fn: async ({ answer, call, args }) => {
+    const parse = (a) => {
+      if (typeof a === 'string') { try { a = JSON.parse(a); } catch (e) { throw new Error(a.slice(0, 300)); } }
+      if (a && Array.isArray(a.content)) return parse(a.content.map((c) => c.text || '').join(''));
+      return a && a.data && (a.data.page_context || a.data.invoices) ? a.data : a;
+    };
+    const first = parse(answer);
+    if (!first || !first.page_context) throw new Error('Respuesta inesperada de Zoho Books: ' + JSON.stringify(first).slice(0, 300));
+    const qp = args.query_params;
+    const org = qp.organization_id;
+    const now = new Date();
+    const pad = (x) => String(x).padStart(2, '0');
+    const today = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate());
+    const endAll = qp.date_end < today ? qp.date_end : today;
+    const months = [];
+    let y = +qp.date_start.slice(0, 4), m = +qp.date_start.slice(5, 7);
+    while ((y + '-' + pad(m)) <= endAll.slice(0, 7)) { months.push(y + '-' + pad(m)); m++; if (m > 12) { m = 1; y++; } }
+    const rows = [];
+    for (const mes of months) {
+      const [yy, mm] = mes.split('-').map(Number);
+      const last = new Date(Date.UTC(yy, mm, 0)).getUTCDate();
+      const r = parse(await call('list_invoices', { query_params: { organization_id: org, date_start: mes + '-01', date_end: mes + '-' + pad(last), per_page: 1, response_option: 3 } }));
+      if (!r || !r.page_context) throw new Error('Zoho Books no devolvió totales para ' + mes);
+      rows.push({ Mes: mes, Ventas_brutas: Number(r.page_context.sum_columns.total) || 0, Facturas: Number(r.page_context.total) || 0, Anuladas: 0, Borrador: 0 });
+    }
+    const byMes = new Map(rows.map((r) => [r.Mes, r]));
+    for (const [status, col] of [['void', 'Anuladas'], ['draft', 'Borrador']]) {
+      for (let page = 1; page <= 10; page++) {
+        const r = parse(await call('list_invoices', { query_params: { organization_id: org, status, date_start: qp.date_start, date_end: endAll, per_page: 200, page } }));
+        for (const inv of (r.invoices || [])) { const row = byMes.get(String(inv.date).slice(0, 7)); if (row) { row[col] += Number(inv.total) || 0; row.Facturas -= 1; } }
+        if (!r.page_context || !r.page_context.has_more_page) break;
+      }
+    }
+    return {
+      columns: ['Mes', 'Ventas_brutas', 'Anuladas', 'Borrador', 'Ventas_netas', 'Facturas'],
+      rows: rows.map((r) => ({ Mes: r.Mes, Ventas_brutas: r.Ventas_brutas, Anuladas: r.Anuladas, Borrador: r.Borrador, Ventas_netas: Math.round((r.Ventas_brutas - r.Anuladas - r.Borrador) * 100) / 100, Facturas: r.Facturas })),
+    };
+  },
+});
+
+dash.calc('registros', {
+  inputs: ['cashback'],
+  title: 'Registros de cashback',
+  description: 'Un registro por cashback: sucursal según el prefijo de la factura (AS = Ari Store, MS o asesor mayorista = Mayoreo, SC o sin prefijo = Los Robles) y estatus derivado.',
+  fn: (cashback) => {
+    const mayoristas = ['Rafael Martinez Bonilla', 'Alex Javier Mercado Rodriguez', 'Luis Roberto Rubio'];
+    return cashback.map((r) => {
+      const owner = [r['Owner.first_name'], r['Owner.last_name']].filter(Boolean).join(' ') || 'Sin propietario';
+      const f = String(r.Factura_CashBack || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+      const sucursal = /^(FAC)?AS\d/.test(f) ? 'Ari Store' : (/^(FAC)?MS\d/.test(f) || mayoristas.includes(owner)) ? 'Mayoreo' : 'Los Robles';
+      const est = r.Estatus || '', caja = r.Recibido_en_caja1 || '', op = r.Recibido_en_operaciones || '';
+      const estado = est === 'Ingresado en sistema' ? 'Ingresado a sistema'
+        : (/repar/i.test(est) || /repar/i.test(op)) ? 'En reparación'
+        : (!est && !caja && !op) ? 'Sin estatus (histórico)'
+        : caja === 'Recibido' ? 'Recibido en caja · pendiente OP'
+        : 'Pendiente OP';
+      const alerta = estado === 'Recibido en caja · pendiente OP' ? 'En tránsito'
+        : (estado === 'Pendiente OP' || estado === 'En reparación') ? 'Pendiente liquidación' : '';
+      const mods = [r.Modelo, r.Modelo_2, r.Modelo_3].filter(Boolean);
+      return {
+        Numero: r.Numero_de_Cash_Back, Fecha: r.Fecha, Mes: String(r.Fecha || '').slice(0, 7),
+        Sucursal: sucursal, Propietario: owner, Cliente: r['Cliente.Full_Name'] || '',
+        Equipos: mods.length || 1, Modelo: mods.join(' + '),
+        IMEI: [r.IMEI, r.IMEI_2, r.IMEI_3].filter(Boolean).join(' / '),
+        Factura: r.Factura_CashBack || '', Total: Number(r.Total_valoraci_n) || 0,
+        Estado: estado, Caja: caja, Operaciones: op, Alerta: alerta,
+      };
+    });
+  },
+});
+
+dash.calc('equipos', {
+  inputs: ['cashback', 'registros'],
+  title: 'Equipos recibidos',
+  description: 'Un renglón por equipo (hasta 3 por cashback), con la familia de modelo normalizada (sin capacidad, RAM ni variante SIM) y su valoración.',
+  fn: (cashback, registros) => {
+    const byNum = new Map(registros.map((r) => [r.Numero, r]));
+    const norm = (m) => {
+      let s = String(m).toUpperCase().replace(/\(.*?\)/g, ' ');
+      s = s.replace(/\b(SAMSUNG|SAMUSUNG|GALAXY|APPLE|5G|DS|ESIM|NORMAL|NORMLA|DE)\b/g, ' ');
+      s = s.replace(/PROMAX/g, 'PRO MAX').replace(/(\d)(PRO|ULTRA)/g, '$1 $2');
+      s = s.split(/\b\d+\s*(?:GB|TB|G|MM|RAM)\b|\/|\$|\b1\s*SIM|\+\s*ESIM|\b(?:32|64|128|256|512|1024)\b/)[0];
+      s = s.trim().replace(/^(1[1-7]|X[SR]?)\b/, 'IPHONE $1').replace(/\bZ ?FLOD/, 'Z FOLD').replace(/\bZ(FOLD|FLIP)/, 'Z $1');
+      return s.replace(/\s+/g, ' ').trim() || 'SIN MODELO';
+    };
+    const out = [];
+    for (const r of cashback) {
+      const g = byNum.get(r.Numero_de_Cash_Back);
+      if (!g) continue;
+      for (const k of ['', '_2', '_3']) {
+        const mo = r['Modelo' + k];
+        if (!mo) continue;
+        const mk = r['Marca' + k];
+        const marca = mk && mk !== '-None-' ? mk : /IPHONE|IPAD|MAC|AIRPOD|APPLE/i.test(mo) ? 'Apple' : /SAMSUNG|GALAXY|\bS2\d|FOLD|FLIP/i.test(mo) ? 'Samsung' : 'Otra';
+        out.push({ Numero: g.Numero, Fecha: g.Fecha, Mes: g.Mes, Sucursal: g.Sucursal, Propietario: g.Propietario, Estado: g.Estado, Marca: marca, Familia: norm(mo), Valor: Number(r['Valoraci_n' + k]) || 0 });
+      }
+    }
+    return out;
+  },
+});
+
+</script>
+<script>
+(function () {
+  const root = document.getElementById('cb');
+  const $ = (s) => root.querySelector(s);
+  const tip = $('.cb-tip');
+  const cssv = (n) => getComputedStyle(root).getPropertyValue(n).trim();
+  const PAL = () => [cssv('--cb-red'), cssv('--cb-ink'), cssv('--cb-steel'), cssv('--cb-red-lt'), cssv('--cb-silver'), cssv('--cb-red-dk')];
+  const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+  const mesLbl = (m) => MESES[+m.slice(5, 7) - 1] + ' ' + m.slice(2, 4);
+  const fUSD = (v) => '$' + d3.format(',.0f')(v);
+  const fUSD2 = (v) => '$' + d3.format(',.2f')(v);
+  const fBig = (v) => Math.abs(v) >= 10000 ? '$' + new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 }).format(v) : fUSD(v);
+  const fN = d3.format(',');
+  const fPct = (v) => (isFinite(v) ? d3.format('.2%')(v) : '—');
+  const fPct1 = (v) => (isFinite(v) ? d3.format('.1%')(v) : '—');
+  const dateLbl = (s) => { if (!s) return ''; const [y, m, d] = s.split('-'); return +d + ' ' + MESES[+m - 1] + ' ' + y; };
+  const ESTADOS = ['Ingresado a sistema', 'Recibido en caja · pendiente OP', 'Pendiente OP', 'En reparación', 'Sin estatus (histórico)'];
+  const estColor = (e) => ({
+    'Ingresado a sistema': 'var(--color-ok)',
+    'Recibido en caja · pendiente OP': 'var(--color-warn)',
+    'Pendiente OP': 'var(--color-bad)',
+    'En reparación': 'var(--cb-red-dk)',
+    'Sin estatus (histórico)': 'var(--cb-silver)',
+  }[e] || 'var(--cds-chart-muted)');
+  const DEF = { start: null, end: null, sucursal: '', estado: '', modo: 'monto', grupo: 'sucursal', modelo: '', q: '', alerta: false };
+  const P = () => Object.assign({}, DEF, dash.params());
+  const clear = (el) => { while (el.firstChild) el.removeChild(el.firstChild); };
+  const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
+  const failBox = (box, st) => { clear(box); if (st === 'error' || st === 'connect' || st === 'declined') box.appendChild(el('div', 'cb-fail', 'Failed to load')); };
+
+  // ---------- tooltip ----------
+  function showTip(ev, title, lines) {
+    clear(tip);
+    tip.appendChild(el('div', 't', title));
+    for (const [lbl, val, color] of lines) {
+      const r = el('div', 'r');
+      const left = el('span');
+      left.style.display = 'flex'; left.style.alignItems = 'center'; left.style.gap = '6px';
+      if (color) { const sw = el('i', 'sw'); sw.style.background = color; left.appendChild(sw); }
+      left.appendChild(document.createTextNode(lbl));
+      r.appendChild(left); r.appendChild(el('span', null, val));
+      tip.appendChild(r);
+    }
+    tip.style.display = 'block';
+    const rb = root.getBoundingClientRect();
+    let x = ev.clientX - rb.left + 14, y = ev.clientY - rb.top + 14;
+    const w = tip.offsetWidth, h = tip.offsetHeight;
+    if (x + w > rb.width) x = ev.clientX - rb.left - w - 14;
+    if (x < 0) x = 0;
+    if (y + h > rb.height) y = ev.clientY - rb.top - h - 14;
+    tip.style.left = x + 'px'; tip.style.top = y + 'px';
+  }
+  const hideTip = () => { tip.style.display = 'none'; };
+
+  // ---------- controls ----------
+  const fStart = $('.f-start'), fEnd = $('.f-end'), fSuc = $('.f-suc'), fEst = $('.f-est');
+  const iQ = $('.i-q'), iMod = $('.i-mod'), iAlert = $('.i-alert');
+  for (const [inp, key] of [[fStart, 'start'], [fEnd, 'end']]) {
+    inp.addEventListener('change', () => {
+      if (!inp.value) dash.setParams({ [key]: null });
+      else if (inp.validity.valid && /^\d{4}-\d{2}-\d{2}$/.test(inp.value) && inp.value >= '2025-01-01') dash.setParams({ [key]: inp.value });
+    });
+    inp.addEventListener('blur', () => { inp.value = P()[key] || ''; });
+  }
+  fSuc.addEventListener('change', () => dash.setParams({ sucursal: fSuc.value }));
+  fEst.addEventListener('change', () => dash.setParams({ estado: fEst.value }));
+  $('.f-modo').addEventListener('click', (e) => { const b = e.target.closest('button[data-v]'); if (b) dash.setParams({ modo: b.dataset.v }); });
+  $('.f-grupo').addEventListener('click', (e) => { const b = e.target.closest('button[data-v]'); if (b) dash.setParams({ grupo: b.dataset.v }); });
+  $('.f-reset').addEventListener('click', () => { dash.resetParams(); sort = { k: 'Alerta', dir: -1 }; });
+  let qTimer;
+  iQ.addEventListener('input', () => { clearTimeout(qTimer); qTimer = setTimeout(() => dash.setParams({ q: iQ.value }), 250); });
+  iMod.addEventListener('change', () => dash.setParams({ modelo: iMod.value }));
+  iAlert.addEventListener('change', () => dash.setParams({ alerta: iAlert.checked }));
+  let sort = { k: 'Alerta', dir: -1 };
+  $('.c-inv thead').addEventListener('click', (e) => {
+    const b = e.target.closest('button[data-k]'); if (!b) return;
+    sort = sort.k === b.dataset.k ? { k: sort.k, dir: -sort.dir } : { k: b.dataset.k, dir: b.dataset.k === 'Total' || b.dataset.k === 'Fecha' ? -1 : 1 };
+    draw();
+  });
+
+  const fillSelect = (sel, first, opts, val) => {
+    const cur = [...sel.options].map((o) => o.value).join('|');
+    const next = [''].concat(opts).join('|');
+    if (cur !== next) sel.replaceChildren(new Option(first, ''), ...opts.map((o) => new Option(o, o)));
+    sel.value = opts.includes(val) ? val : '';
+  };
+
+  // ---------- helpers ----------
+  const inRange = (r, p) => (!p.start || r.Fecha >= p.start) && (!p.end || r.Fecha <= p.end);
+  const passes = (r, p) => inRange(r, p) && (!p.sucursal || r.Sucursal === p.sucursal) && (!p.estado || r.Estado === p.estado);
+  const monthsBetween = (a, b) => { const out = []; let [y, m] = a.split('-').map(Number); const [Y, M] = b.split('-').map(Number); while (y < Y || (y === Y && m <= M)) { out.push(y + '-' + String(m).padStart(2, '0')); m++; if (m > 12) { m = 1; y++; } } return out; };
+  const measure = (svg, txt) => { const t = svg.append('text').attr('font-size', 12).text(txt); const w = t.node().getComputedTextLength(); t.remove(); return w; };
+  const styleAxis = (g) => { g.attr('font-size', null).attr('font-family', null); g.selectAll('text').attr('fill', 'var(--color-fg-muted)').style('font-size', '12px'); g.selectAll('.domain').attr('stroke', 'var(--cds-chart-axis)'); g.selectAll('.tick line').attr('stroke', 'var(--cds-chart-grid)'); };
+
+  // ---------- monthly bar chart ----------
+  function drawTrend(box, months, rowsByMonth, modo) {
+    clear(box);
+    const W = box.clientWidth || 600, H = 260;
+    const data = months.map((m) => { const rs = rowsByMonth.get(m) || []; return { m, v: modo === 'monto' ? d3.sum(rs, (r) => r.Total) : rs.length, monto: d3.sum(rs, (r) => r.Total), n: rs.length }; });
+    if (!data.length || !d3.sum(data, (d) => d.v)) { box.appendChild(el('div', 'cb-empty', 'Sin registros en el filtro actual')); return; }
+    let acc = 0; data.forEach((d) => { acc += d.v; d.acc = acc; });
+    data.forEach((d, i) => { const w = data.slice(Math.max(0, i - 2), i + 1); d.ma = d3.mean(w, (x) => x.v); });
+    const svg = d3.select(box).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('height', H);
+    const y = d3.scaleLinear([0, d3.max(data, (d) => d.v) * 1.1], [H - 28, 8]).nice();
+    const fmt = modo === 'monto' ? fBig : fN;
+    const ml = Math.ceil(d3.max(y.ticks(5), (t) => measure(svg, fmt(t)))) + 12;
+    const x = d3.scaleBand(months, [ml, W - 8]).padding(0.25);
+    svg.append('g').attr('transform', `translate(${ml},0)`).call(d3.axisLeft(y).ticks(5).tickSize(-(W - ml - 8)).tickFormat(fmt)).call(styleAxis).call((g) => g.select('.domain').remove());
+    const step = Math.ceil(months.length * 48 / (W - ml));
+    svg.append('g').attr('transform', `translate(0,${H - 28})`).call(d3.axisBottom(x).tickValues(months.filter((_, i) => i % step === 0)).tickFormat(mesLbl).tickSizeOuter(0)).call(styleAxis);
+    svg.append('g').selectAll('rect').data(data).join('rect')
+      .attr('x', (d) => x(d.m)).attr('width', x.bandwidth()).attr('y', (d) => y(d.v)).attr('height', (d) => Math.max(0, y(0) - y(d.v))).attr('rx', 4)
+      .attr('fill', PAL()[0])
+      .on('mousemove', (ev, d) => showTip(ev, mesLbl(d.m), [['Monto', fUSD2(d.monto), PAL()[0]], ['Transacciones', fN(d.n)], ['Promedio móvil 3m', fmt(Math.round(d.ma))], ['Acumulado', fmt(d.acc)]]))
+      .on('mouseleave', hideTip);
+    const line = d3.line().x((d) => x(d.m) + x.bandwidth() / 2).y((d) => y(d.ma));
+    svg.append('path').datum(data).attr('d', line).attr('fill', 'none').attr('stroke', 'var(--cb-ink)').attr('stroke-width', 2).attr('stroke-linecap', 'round').attr('stroke-linejoin', 'round').attr('stroke-dasharray', '4 3').attr('pointer-events', 'none');
+  }
+
+  // ---------- share line chart ----------
+  function drawShare(box, pts) {
+    clear(box);
+    const W = box.clientWidth || 800, H = 260;
+    if (!pts.length) { box.appendChild(el('div', 'cb-empty', 'Sin meses con ventas en el rango')); return; }
+    const svg = d3.select(box).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('height', H);
+    const y = d3.scaleLinear([0, (d3.max(pts, (d) => d.share) || 0.01) * 1.15], [H - 28, 12]).nice();
+    const ml = Math.ceil(d3.max(y.ticks(5), (t) => measure(svg, fPct1(t)))) + 12;
+    const x = d3.scalePoint(pts.map((d) => d.m), [ml + 12, W - 60]);
+    svg.append('g').attr('transform', `translate(${ml},0)`).call(d3.axisLeft(y).ticks(5).tickSize(-(W - ml - 8)).tickFormat(fPct1)).call(styleAxis).call((g) => g.select('.domain').remove());
+    const step = Math.ceil(pts.length * 48 / (W - ml));
+    svg.append('g').attr('transform', `translate(0,${H - 28})`).call(d3.axisBottom(x).tickValues(pts.map((d) => d.m).filter((_, i) => i % step === 0)).tickFormat(mesLbl).tickSizeOuter(0)).call(styleAxis).call((g) => g.select('.domain').remove());
+    const gid = 'cbgrad';
+    const grad = svg.append('defs').append('linearGradient').attr('id', gid).attr('x1', 0).attr('x2', 0).attr('y1', 0).attr('y2', 1);
+    [[0, .26], [.25, .16], [.5, .08], [.75, .03], [1, 0]].forEach(([o, a]) => grad.append('stop').attr('offset', o).attr('style', `stop-color:${PAL()[0]};stop-opacity:${a}`));
+    svg.append('path').datum(pts).attr('fill', `url(#${gid})`).attr('d', d3.area().x((d) => x(d.m)).y0(y(0)).y1((d) => y(d.share)));
+    svg.append('path').datum(pts).attr('fill', 'none').attr('stroke', PAL()[0]).attr('stroke-width', 2).attr('stroke-linecap', 'round').attr('stroke-linejoin', 'round').attr('d', d3.line().x((d) => x(d.m)).y((d) => y(d.share)));
+    const last = pts[pts.length - 1];
+    svg.append('text').attr('x', x(last.m) + 8).attr('y', y(last.share) + 4).attr('fill', PAL()[0]).style('font-size', '12px').text(fPct(last.share));
+    const dots = svg.append('g').selectAll('circle').data(pts).join('circle').attr('cx', (d) => x(d.m)).attr('cy', (d) => y(d.share)).attr('r', 3).attr('fill', PAL()[0]);
+    const xs = pts.map((d) => x(d.m));
+    svg.append('rect').attr('x', ml).attr('y', 0).attr('width', W - ml).attr('height', H - 28).attr('fill', 'transparent')
+      .on('mousemove', (ev) => {
+        const [mx] = d3.pointer(ev);
+        const i = d3.leastIndex(xs, (a) => Math.abs(a - mx));
+        const d = pts[i];
+        dots.attr('r', (p) => (p === d ? 5 : 3));
+        showTip(ev, mesLbl(d.m), [['Cashback / ventas', fPct(d.share), PAL()[0]], ['Cashback', fUSD2(d.cb)], ['Ventas netas Books', fUSD2(d.ventas)]]);
+      })
+      .on('mouseleave', () => { dots.attr('r', 3); hideTip(); });
+  }
+
+  // ---------- donut ----------
+  function drawBrand(box, eqs, modo) {
+    clear(box);
+    const val = (r) => (modo === 'monto' ? r.Valor : 1);
+    const data = d3.rollups(eqs, (v) => ({ v: d3.sum(v, val), n: v.length, monto: d3.sum(v, (r) => r.Valor) }), (r) => r.Marca).map(([k, o]) => ({ k, ...o })).sort((a, b) => b.v - a.v);
+    const tot = d3.sum(data, (d) => d.v);
+    if (!tot) { box.appendChild(el('div', 'cb-empty', 'Sin equipos en el filtro actual')); return; }
+    const S = Math.min(220, Math.max(160, box.clientWidth * 0.45));
+    const svg = d3.select(box).append('svg').attr('width', S).attr('height', S).attr('viewBox', `0 0 ${S} ${S}`);
+    const g = svg.append('g').attr('transform', `translate(${S / 2},${S / 2})`);
+    const arc = d3.arc().innerRadius(S * 0.3).outerRadius(S / 2 - 4).cornerRadius(4).padAngle(0.015);
+    g.selectAll('path').data(d3.pie().sort(null).value((d) => d.v)(data)).join('path').attr('d', arc).attr('fill', (d, i) => PAL()[i % 6])
+      .on('mousemove', (ev, d) => showTip(ev, d.data.k, [['Participación', fPct1(d.data.v / tot), PAL()[data.indexOf(d.data) % 6]], ['Equipos', fN(d.data.n)], ['Valoración', fUSD2(d.data.monto)]]))
+      .on('mouseleave', hideTip);
+    g.append('text').attr('text-anchor', 'middle').attr('dy', '-0.2em').attr('fill', 'var(--color-fg)').style('font-family', 'var(--font-anthropic-serif)').style('font-size', '20px').text(modo === 'monto' ? fBig(tot) : fN(tot));
+    g.append('text').attr('text-anchor', 'middle').attr('dy', '1.2em').attr('fill', 'var(--color-fg-muted)').style('font-size', '12px').text(modo === 'monto' ? 'valoración' : 'equipos');
+    const ul = el('ul', 'cb-legend');
+    data.forEach((d, i) => {
+      const li = el('li'); const sw = el('i', 'sw'); sw.style.background = PAL()[i % 6];
+      const v = el('span', 'v', fPct1(d.v / tot)); v.appendChild(el('small', null, fN(d.n) + ' equipos · ' + fUSD(d.monto)));
+      li.append(sw, el('span', null, d.k), v); ul.appendChild(li);
+    });
+    box.appendChild(ul);
+  }
+
+  // ---------- top models ----------
+  function drawModels(box, eqs, modo) {
+    clear(box);
+    const data = d3.rollups(eqs, (v) => ({ n: v.length, monto: d3.sum(v, (r) => r.Valor), marca: d3.mode(v, (r) => r.Marca) }), (r) => r.Familia)
+      .map(([k, o]) => ({ k, ...o, v: modo === 'monto' ? o.monto : o.n })).sort((a, b) => b.v - a.v).slice(0, 10);
+    if (!data.length) { box.appendChild(el('div', 'cb-empty', 'Sin equipos en el filtro actual')); return; }
+    const max = data[0].v;
+    const marcas = [...new Set(eqs.map((r) => r.Marca))].sort();
+    for (const d of data) {
+      const row = el('div', 'cb-hbar');
+      const b = el('div', 'b'); const i = el('i');
+      i.style.width = (100 * d.v / max) + '%';
+      const brandIdx = d3.rollups(eqs, (v) => d3.sum(v, (r) => r.Valor), (r) => r.Marca).sort((a, b) => b[1] - a[1]).map((x) => x[0]).indexOf(d.marca);
+      i.style.background = PAL()[Math.max(0, brandIdx) % 6];
+      b.appendChild(i);
+      row.append(el('span', 'n', d.k), b, el('span', 'v', modo === 'monto' ? fUSD(d.v) : fN(d.v) + ' eq.'));
+      row.addEventListener('mousemove', (ev) => showTip(ev, d.k, [['Marca', d.marca], ['Equipos', fN(d.n)], ['Valoración', fUSD2(d.monto)], ['Valoración promedio', fUSD2(d.monto / d.n)]]));
+      row.addEventListener('mouseleave', hideTip);
+      box.appendChild(row);
+    }
+    void marcas;
+  }
+
+  // ---------- matrix ----------
+  function drawMatrix(box, regs, months, grupo, modo) {
+    clear(box);
+    if (!regs.length) { box.appendChild(el('div', 'cb-empty', 'Sin registros en el filtro actual')); box.style.minHeight = '120px'; return; }
+    const key = grupo === 'propietario' ? 'Propietario' : 'Sucursal';
+    const groups = d3.rollups(regs, (v) => d3.sum(v, (r) => r.Total), (r) => r[key]).sort((a, b) => b[1] - a[1]).map((d) => d[0]);
+    const cell = new Map(d3.rollups(regs, (v) => ({ m: d3.sum(v, (r) => r.Total), n: v.length }), (r) => r[key], (r) => r.Mes).map(([g, arr]) => [g, new Map(arr)]));
+    const t = el('table', 'cb-matrix');
+    const hr = el('tr');
+    hr.appendChild(el('th', null, grupo === 'propietario' ? 'Propietario de venta' : 'Sucursal'));
+    months.forEach((m) => hr.appendChild(el('th', 'num', mesLbl(m))));
+    ['Total', 'Prom. mensual', 'Ticket prom.', '% del total'].forEach((h) => hr.appendChild(el('th', 'num', h)));
+    const thead = el('thead'); thead.appendChild(hr); t.appendChild(thead);
+    const tb = el('tbody');
+    const totM = d3.sum(regs, (r) => r.Total), totN = regs.length;
+    const mk = (m, n, cls) => { const td = el('td', 'num' + (cls ? ' ' + cls : '')); if (!n) { td.classList.add('zero'); td.textContent = '·'; return td; } const a = el('span', 'm', modo === 'monto' ? fUSD(m) : fN(n) + ' trx'); const b = el('span', 'c', modo === 'monto' ? fN(n) + ' trx' : fUSD(m)); td.append(a, b); return td; };
+    const addRow = (name, getter, cls) => {
+      const tr = el('tr', cls || null);
+      tr.appendChild(el('td', null, name));
+      let sm = 0, sn = 0;
+      months.forEach((m) => { const c = getter(m) || { m: 0, n: 0 }; sm += c.m; sn += c.n; tr.appendChild(mk(c.m, c.n)); });
+      tr.appendChild(mk(sm, sn));
+      const pm = el('td', 'num'); pm.append(el('span', 'm', modo === 'monto' ? fUSD(sm / months.length) : d3.format(',.1f')(sn / months.length) + ' trx'), el('span', 'c', modo === 'monto' ? d3.format(',.1f')(sn / months.length) + ' trx' : fUSD(sm / months.length)));
+      tr.appendChild(pm);
+      tr.appendChild(el('td', 'num', sn ? fUSD(sm / sn) : '—'));
+      tr.appendChild(el('td', 'num', fPct1(modo === 'monto' ? sm / totM : sn / totN)));
+      tb.appendChild(tr);
+    };
+    groups.forEach((g) => addRow(g, (m) => cell.get(g).get(m)));
+    const allM = new Map(d3.rollups(regs, (v) => ({ m: d3.sum(v, (r) => r.Total), n: v.length }), (r) => r.Mes));
+    addRow('Total general', (m) => allM.get(m), 'tot');
+    t.appendChild(tb);
+    box.appendChild(t);
+  }
+
+  // ---------- status ----------
+  function drawStatus(box, regs, modo) {
+    clear(box);
+    const t = el('table');
+    const hr = el('tr');
+    ['Estatus', 'Transacciones', 'Equipos', 'Monto', '% ' + (modo === 'monto' ? 'del monto' : 'de trx')].forEach((h, i) => hr.appendChild(el('th', i ? 'num' : null, h)));
+    const th = el('thead'); th.appendChild(hr); t.appendChild(th);
+    const tb = el('tbody');
+    const tm = d3.sum(regs, (r) => r.Total), tn = regs.length;
+    for (const e of ESTADOS) {
+      const rs = regs.filter((r) => r.Estado === e);
+      if (!rs.length) continue;
+      const tr = el('tr');
+      const td = el('td'); const dot = el('i', 'cb-dot'); dot.style.background = estColor(e); td.append(dot, document.createTextNode(e));
+      const m = d3.sum(rs, (r) => r.Total);
+      tr.append(td, el('td', 'num', fN(rs.length)), el('td', 'num', fN(d3.sum(rs, (r) => r.Equipos))), el('td', 'num', fUSD2(m)), el('td', 'num', fPct1(modo === 'monto' ? m / tm : rs.length / tn)));
+      tb.appendChild(tr);
+    }
+    const tr = el('tr', 'tot');
+    tr.append(el('td', null, 'Total'), el('td', 'num', fN(tn)), el('td', 'num', fN(d3.sum(regs, (r) => r.Equipos))), el('td', 'num', fUSD2(tm)), el('td', 'num', tn ? '100%' : '—'));
+    tr.querySelectorAll('td').forEach((c) => { c.style.fontWeight = 'var(--cds-font-weight-medium)'; });
+    tb.appendChild(tr);
+    t.appendChild(tb);
+    box.appendChild(t);
+  }
+
+  function drawStack(box, regs, grupo, modo) {
+    clear(box);
+    const key = grupo === 'propietario' ? 'Propietario' : 'Sucursal';
+    const val = (r) => (modo === 'monto' ? r.Total : 1);
+    const groups = d3.rollups(regs, (v) => d3.sum(v, val), (r) => r[key]).sort((a, b) => b[1] - a[1]);
+    if (!groups.length) { box.appendChild(el('div', 'cb-empty', 'Sin registros en el filtro actual')); return; }
+    for (const [g, tot] of groups) {
+      const row = el('div', 'row');
+      row.appendChild(el('span', null, g));
+      const bar = el('div', 'bar');
+      for (const e of ESTADOS) {
+        const rs = regs.filter((r) => r[key] === g && r.Estado === e);
+        const v = d3.sum(rs, val);
+        if (!v) continue;
+        const i = el('i'); i.style.width = (100 * v / tot) + '%'; i.style.background = estColor(e);
+        i.addEventListener('mousemove', (ev) => showTip(ev, g, [[e, fPct1(v / tot), estColor(e)], ['Transacciones', fN(rs.length)], ['Monto', fUSD2(d3.sum(rs, (r) => r.Total))]]));
+        i.addEventListener('mouseleave', hideTip);
+        bar.appendChild(i);
+      }
+      row.appendChild(bar);
+      box.appendChild(row);
+    }
+    const leg = el('div'); leg.style.display = 'flex'; leg.style.flexWrap = 'wrap'; leg.style.gap = '12px'; leg.style.fontSize = 'var(--cds-font-size-caption)'; leg.style.color = 'var(--color-fg-muted)';
+    ESTADOS.forEach((e) => { const s = el('span'); const d = el('i', 'cb-dot'); d.style.background = estColor(e); s.append(d, document.createTextNode(e)); leg.appendChild(s); });
+    box.appendChild(leg);
+  }
+
+  // ---------- inventory ----------
+  function drawInventory(regs, eqs, p) {
+    const tbody = $('.c-inv tbody');
+    clear(tbody);
+    let rows = regs;
+    if (p.modelo) { const nums = new Set(eqs.filter((e) => e.Familia === p.modelo).map((e) => e.Numero)); rows = rows.filter((r) => nums.has(r.Numero)); }
+    if (p.alerta) rows = rows.filter((r) => r.Alerta);
+    const q = (p.q || '').trim().toLowerCase();
+    if (q) rows = rows.filter((r) => [r.Numero, r.Cliente, r.Modelo, r.IMEI, r.Factura, r.Propietario].join(' ').toLowerCase().includes(q));
+    const rank = (r) => (r.Alerta === 'En tránsito' ? 2 : r.Alerta ? 1 : 0);
+    const k = sort.k, dir = sort.dir;
+    rows = rows.slice().sort((a, b) => {
+      let c = k === 'Alerta' ? rank(a) - rank(b) : k === 'Total' ? a.Total - b.Total : String(a[k]).localeCompare(String(b[k]), 'es', { numeric: true });
+      if (c === 0) c = String(a.Fecha).localeCompare(String(b.Fecha)) * (k === 'Alerta' ? 1 : 0) || String(b.Numero).localeCompare(String(a.Numero), 'es', { numeric: true });
+      return c * dir;
+    });
+    $('.c-inv thead').querySelectorAll('th').forEach((th) => { const b = th.querySelector('button'); th.setAttribute('aria-sort', b && b.dataset.k === k ? (dir > 0 ? 'ascending' : 'descending') : 'none'); });
+    const nT = rows.filter((r) => r.Alerta === 'En tránsito').length, nP = rows.filter((r) => r.Alerta === 'Pendiente liquidación').length;
+    $('.cb-inv-sum').textContent = fN(rows.length) + ' registros · ' + fN(d3.sum(rows, (r) => r.Equipos)) + ' equipos · ' + fUSD2(d3.sum(rows, (r) => r.Total)) + ' · ' + nT + ' en tránsito · ' + nP + ' pendientes de liquidación';
+    const frag = document.createDocumentFragment();
+    for (const r of rows) {
+      const tr = el('tr', r.Alerta === 'En tránsito' ? 'alert-t' : r.Alerta ? 'alert-p' : null);
+      tr.dataset.key = r.Numero;
+      const a = el('td');
+      a.appendChild(el('span', 'cb-badge ' + (r.Alerta === 'En tránsito' ? 'transito' : r.Alerta ? 'pend' : r.Estado.startsWith('Sin') ? 'hist' : 'ok'), r.Alerta || (r.Estado.startsWith('Sin') ? 'Histórico' : 'Liquidado')));
+      tr.appendChild(a);
+      tr.appendChild(el('td', null, r.Numero));
+      tr.appendChild(el('td', null, r.Fecha));
+      tr.appendChild(el('td', 'wrap', r.Cliente));
+      tr.appendChild(el('td', 'wrap', r.Modelo));
+      tr.appendChild(el('td', null, r.IMEI));
+      tr.appendChild(el('td', null, r.Factura));
+      tr.appendChild(el('td', null, r.Sucursal));
+      const st = el('td'); const d = el('i', 'cb-dot'); d.style.background = estColor(r.Estado); st.append(d, document.createTextNode(r.Estado)); tr.appendChild(st);
+      tr.appendChild(el('td', 'num', fUSD2(r.Total)));
+      frag.appendChild(tr);
+    }
+    tbody.appendChild(frag);
+  }
+
+  // ---------- main draw ----------
+  function draw() {
+    const p = P();
+    const R = dash.data('registros'), E = dash.data('equipos'), V = dash.data('ventas');
+    const ok = R.status === 'ok';
+    const regsAll = ok ? R.data : [];
+    const eqsAll = E.status === 'ok' ? E.data : [];
+    // controls
+    if (fStart !== document.activeElement) fStart.value = p.start || '';
+    if (fEnd !== document.activeElement) fEnd.value = p.end || '';
+    fillSelect(fSuc, 'Todas las sucursales', [...new Set(regsAll.map((r) => r.Sucursal))].sort(), p.sucursal);
+    fillSelect(fEst, 'Todos los estatus', ESTADOS.filter((e) => regsAll.some((r) => r.Estado === e)), p.estado);
+    root.querySelectorAll('.f-modo button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === p.modo)));
+    root.querySelectorAll('.f-grupo button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === p.grupo)));
+    if (iQ !== document.activeElement) iQ.value = p.q || '';
+    iAlert.checked = !!p.alerta;
+
+    const boxes = ['.c-share', '.c-trend', '.c-brand', '.c-models', '.c-matrix', '.c-status', '.c-stack'].map($);
+    if (!ok) {
+      boxes.forEach((b) => failBox(b, R.status));
+      clear($('.c-inv tbody'));
+      ['.k-monto', '.k-trx', '.k-eq', '.k-share', '.k-pend'].forEach((s) => { $(s).textContent = '—'; });
+      $('.cb-takeaway').textContent = '—';
+      return;
+    }
+    const regs = regsAll.filter((r) => passes(r, p));
+    const eqs = eqsAll.filter((r) => passes(r, p));
+    const famList = d3.rollups(eqsAll.filter((r) => inRange(r, p)), (v) => v.length, (r) => r.Familia).sort((a, b) => b[1] - a[1]).map((d) => d[0]);
+    fillSelect(iMod, 'Todos los modelos', famList, p.modelo);
+
+    const mAll = regsAll.map((r) => r.Mes).filter(Boolean).sort();
+    const m0 = p.start ? p.start.slice(0, 7) : mAll[0];
+    const m1 = p.end ? p.end.slice(0, 7) : mAll[mAll.length - 1];
+    const months = m0 && m1 && m0 <= m1 ? monthsBetween(m0, m1) : [];
+    $('.per').textContent = months.length ? mesLbl(months[0]) + ' – ' + mesLbl(months[months.length - 1]) + (p.sucursal ? ' · ' + p.sucursal : '') + (p.estado ? ' · ' + p.estado : '') : '';
+    const byMonth = d3.group(regs, (r) => r.Mes);
+
+    // KPIs
+    const tot = d3.sum(regs, (r) => r.Total), n = regs.length, neq = d3.sum(regs, (r) => r.Equipos);
+    const lastM = months[months.length - 1], prevM = months[months.length - 2];
+    const lm = byMonth.get(lastM) || [], pm = byMonth.get(prevM) || [];
+    const delta = (a, b) => (b ? (a >= b ? '+' : '') + d3.format('.0%')((a - b) / b) + ' vs ' + mesLbl(prevM) : '');
+    $('.k-monto').textContent = fUSD2(tot);
+    $('.k-monto-s').textContent = lastM ? mesLbl(lastM) + ': ' + fUSD(d3.sum(lm, (r) => r.Total)) + (prevM ? ' · ' + delta(d3.sum(lm, (r) => r.Total), d3.sum(pm, (r) => r.Total)) : '') : '';
+    $('.k-trx').textContent = fN(n);
+    $('.k-trx-s').textContent = 'Ticket promedio ' + (n ? fUSD2(tot / n) : '—') + (lastM ? ' · ' + mesLbl(lastM) + ': ' + fN(lm.length) : '');
+    $('.k-eq').textContent = fN(neq);
+    $('.k-eq-s').textContent = 'Valoración promedio por equipo ' + (neq ? fUSD2(tot / neq) : '—');
+    const pend = regs.filter((r) => r.Alerta);
+    $('.k-pend').textContent = fN(pend.length);
+    $('.k-pend-s').textContent = fUSD2(d3.sum(pend, (r) => r.Total)) + ' · ' + pend.filter((r) => r.Alerta === 'En tránsito').length + ' en tránsito';
+
+    // share
+    const shareBox = $('.c-share');
+    let shareTxt = '';
+    if (V.status === 'ok') {
+      const ventas = new Map(V.data.map((r) => [r.Mes, r.Ventas_netas]));
+      const pts = months.filter((m) => ventas.get(m) > 0).map((m) => { const cb = d3.sum(byMonth.get(m) || [], (r) => r.Total); return { m, cb, ventas: ventas.get(m), share: cb / ventas.get(m) }; });
+      const sv = d3.sum(pts, (d) => d.ventas), sc = d3.sum(pts, (d) => d.cb);
+      $('.k-share').textContent = sv ? fPct(sc / sv) : '—';
+      $('.k-share-s').textContent = sv ? fUSD(sc) + ' de ' + fBig(sv) + ' facturado' + (p.sucursal ? ' (ventas de todas las sucursales)' : '') : '—';
+      shareTxt = sv ? ', equivalente al ' + fPct(sc / sv) + ' de las ventas netas facturadas en Zoho Books' : '';
+      drawShare(shareBox, pts);
+    } else {
+      $('.k-share').textContent = '—';
+      $('.k-share-s').textContent = V.status === 'loading' ? 'Cargando ventas de Zoho Books…' : '—';
+      failBox(shareBox, V.status);
+    }
+
+    $('.cb-takeaway').textContent = n
+      ? 'El programa acumula ' + fUSD2(tot) + ' en ' + fN(n) + ' transacciones (' + fN(neq) + ' equipos)' + shareTxt + '. ' + (pend.length ? pend.length + ' registros por ' + fUSD(d3.sum(pend, (r) => r.Total)) + ' siguen pendientes de liquidación o en tránsito.' : 'No hay registros pendientes de liquidación.')
+      : 'No hay registros con los filtros actuales.';
+
+    $('.n-trend').textContent = (p.modo === 'monto' ? 'Monto de valoración $' : 'Transacciones') + ' por mes; la línea punteada es el promedio móvil de 3 meses.';
+    $('.n-brand').textContent = (p.modo === 'monto' ? 'Valoración $' : 'Equipos') + ' por marca registrada en cada equipo.';
+    $('.n-models').textContent = 'Familias de modelo por ' + (p.modo === 'monto' ? 'valoración $' : 'cantidad de equipos') + '; el color indica la marca.';
+    $('.n-stack').textContent = 'Composición por estatus de cada ' + (p.grupo === 'propietario' ? 'propietario de venta' : 'sucursal') + ', en ' + (p.modo === 'monto' ? 'monto $' : 'transacciones') + '.';
+
+    drawTrend($('.c-trend'), months, byMonth, p.modo);
+    if (E.status === 'ok') { drawBrand($('.c-brand'), eqs, p.modo); drawModels($('.c-models'), eqs, p.modo); }
+    else { failBox($('.c-brand'), E.status); failBox($('.c-models'), E.status); }
+    drawMatrix($('.c-matrix'), regs, months, p.grupo, p.modo);
+    drawStatus($('.c-status'), regs, p.modo);
+    drawStack($('.c-stack'), regs, p.grupo, p.modo);
+    drawInventory(regs, eqsAll, p);
+  }
+
+  dash.onData(draw);
+  const named = document.getElementById(location.hash.slice(1));
+  if (named) setTimeout(() => named.scrollIntoView(), 300);
+  const io = new IntersectionObserver((ents) => { ents.forEach((e) => { if (e.isIntersecting) dash.setLink(e.target.id); }); }, { root: document, rootMargin: '-40% 0px -55% 0px' });
+  ['registro', 'operativo', 'inventario', 'existencias'].forEach((id) => io.observe(document.getElementById(id)));
+})();
+
+</script>
+<script>
+dash.calc('existencias_vinculadas', {
+  inputs: ['existencias_imei', 'cashback', 'registros'],
+  title: 'Existencias vinculadas por IMEI',
+  description: 'Cada equipo usado disponible del reporte de números de serie se busca por IMEI en el módulo Cash Back: coincidencia exacta, o con hasta 2 dígitos de diferencia (errores de captura). Recepción = fecha del cashback; días en existencia = hoy − recepción; días sin movimiento = hoy − fecha del último movimiento en Zoho.',
+  fn: (existencias_imei, cashback, registros) => {
+    const N = (v) => String(v || '').replace(/\W/g, '').toUpperCase();
+    const lev = (a, b) => { let p = Array.from({ length: b.length + 1 }, (_, i) => i); for (let i = 1; i <= a.length; i++) { const c = [i]; for (let j = 1; j <= b.length; j++) c.push(Math.min(p[j] + 1, c[j - 1] + 1, p[j - 1] + (a[i - 1] !== b[j - 1] ? 1 : 0))); p = c; } return p[b.length]; };
+    const byNum = new Map(registros.map((r) => [r.Numero, r]));
+    const dev = [];
+    for (const r of cashback) {
+      const g = byNum.get(r.Numero_de_Cash_Back); if (!g) continue;
+      let n = 0;
+      for (const k of ['', '_2', '_3']) {
+        if (!r['Modelo' + k] && !r['IMEI' + k]) continue; n++;
+        const im = N(r['IMEI' + k]); if (!im) continue;
+        dev.push({ IMEI: im, Equipo: g.Numero + (n > 1 ? '-' + n : ''), Modelo_CRM: r['Modelo' + k] || '', Fecha: g.Fecha, Propietario: g.Propietario, Sucursal: g.Sucursal, Cliente: g.Cliente, Valor: Number(r['Valoraci_n' + k]) || 0 });
+      }
+    }
+    const exact = new Map(dev.map((d) => [d.IMEI, d]));
+    const t = new Date(); const hoy = Date.UTC(t.getFullYear(), t.getMonth(), t.getDate());
+    const dias = (f) => { const [y, m, d] = String(f || '').slice(0, 10).split('-').map(Number); return y ? Math.round((hoy - Date.UTC(y, m - 1, d)) / 86400000) : null; };
+    const title = (s) => String(s || '').toLowerCase().replace(/(^|\s)\S/g, (x) => x.toUpperCase());
+    return existencias_imei.map((s) => {
+      const im = N(s.IMEI);
+      let d = exact.get(im), vin = d ? 'IMEI exacto' : '';
+      if (!d && im.length >= 10) {
+        let best = null, bd = 9;
+        for (const x of dev) { if (Math.abs(x.IMEI.length - im.length) > 2) continue; const v = lev(im, x.IMEI); if (v < bd) { bd = v; best = x; } }
+        if (best && bd <= 2) { d = best; vin = 'IMEI con error de captura'; }
+      }
+      const art = String(s.Articulo || '');
+      const marca = /IPHONE|IPAD|APPLE|AIRPOD|MAC/i.test(art) ? 'Apple' : /SAMSUNG|GALAXY/i.test(art) ? 'Samsung' : 'Otra';
+      const bill = /proveedor/i.test(s.Ultimo_movimiento || '');
+      const prop = d ? d.Propietario : (bill && s.Contacto ? title(s.Contacto) : '');
+      const fRec = d ? d.Fecha : (bill ? s.Fecha_ultimo_movimiento : '');
+      return {
+        IMEI: s.IMEI, Marca: marca, Articulo: art, SKU: s.SKU, Bodega: s.Bodega, Costo: Number(s.Costo) || 0,
+        Propietario: prop, Fecha_Recepcion: fRec, Dias_Existencia: dias(fRec),
+        Ultimo_Movimiento: s.Ultimo_movimiento, Documento: s.Documento, Fecha_Ultimo_Mov: s.Fecha_ultimo_movimiento, Dias_Sin_Movimiento: dias(s.Fecha_ultimo_movimiento),
+        N_Cashback: d ? d.Equipo : '', IMEI_CRM: d ? d.IMEI : '', Sucursal_Registro: d ? d.Sucursal : '', Valoracion: d ? d.Valor : null,
+        Vinculo: vin || (prop ? 'Sin cashback (factura de recepción)' : 'Sin registro de cashback'),
+      };
+    });
+  },
+});
+
+(function () {
+  const root = document.getElementById('existencias');
+  const q = (s) => root.querySelector(s);
+  const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
+  const fN = d3.format(','), usd = (v) => '$' + d3.format(',.0f')(v), pct = d3.format('.0%');
+  const fd = (s) => { if (!s) return ''; const [y, m, d] = s.split('-'); return d + '/' + m + '/' + y; };
+  const VB = { 'IMEI exacto': 'ok', 'IMEI con error de captura': 'transito', 'Sin cashback (factura de recepción)': 'hist', 'Sin registro de cashback': 'pend' };
+  const VORD = Object.keys(VB);
+  let sort = { k: 'Dias_Existencia', dir: -1 }, qT;
+  const iq = q('.x-q'), so = q('.x-ownsel'), sb = q('.x-bodsel'), sv = q('.x-vinsel');
+  iq.addEventListener('input', () => { clearTimeout(qT); qT = setTimeout(() => dash.setParams({ xq: iq.value }), 250); });
+  so.addEventListener('change', () => dash.setParams({ xown: so.value }));
+  sb.addEventListener('change', () => dash.setParams({ xbod: sb.value }));
+  sv.addEventListener('change', () => dash.setParams({ xvin: sv.value }));
+  q('.x-own').addEventListener('click', (e) => { const tr = e.target.closest('tr[data-key]'); if (!tr) return; const cur = dash.params().xown || ''; dash.setParams({ xown: cur === tr.dataset.key ? '' : tr.dataset.key }); });
+  const NUM = ['Dias_Existencia', 'Dias_Sin_Movimiento', 'Costo'];
+  q('.x-tab thead').addEventListener('click', (e) => { const b = e.target.closest('button[data-k]'); if (!b) return; sort = sort.k === b.dataset.k ? { k: sort.k, dir: -sort.dir } : { k: b.dataset.k, dir: NUM.includes(b.dataset.k) || /Fecha/.test(b.dataset.k) ? -1 : 1 }; draw(); });
+  const fill = (sel, first, opts, val) => { const nx = [''].concat(opts).join('|'); if ([...sel.options].map((o) => o.value).join('|') !== nx) sel.replaceChildren(new Option(first, ''), ...opts.map((o) => new Option(o, o))); sel.value = opts.includes(val) ? val : ''; };
+  const clear = (n) => { while (n.firstChild) n.removeChild(n.firstChild); };
+  function draw() {
+    const p = Object.assign({ xq: '', xown: '', xbod: '', xvin: '' }, dash.params());
+    const D = dash.data('existencias_vinculadas');
+    const tbody = q('.x-tab tbody'), ownBox = q('.x-own');
+    clear(tbody); clear(ownBox);
+    if (iq !== document.activeElement) iq.value = p.xq || '';
+    if (D.status !== 'ok') {
+      ['.x-tot', '.x-vin', '.x-sin', '.x-avg', '.x-60'].forEach((s) => { q(s).textContent = '—'; });
+      if (D.status === 'error' || D.status === 'connect') ownBox.appendChild(el('div', 'cb-fail', 'Failed to load'));
+      return;
+    }
+    const all = D.data, vin = all.filter((r) => r.N_Cashback), withOwn = all.filter((r) => r.Propietario);
+    q('.x-tot').textContent = fN(all.length);
+    q('.x-tot-s').textContent = usd(d3.sum(all, (r) => r.Costo)) + ' al costo · ' + new Set(all.map((r) => r.Bodega)).size + ' bodegas';
+    q('.x-vin').textContent = fN(vin.length);
+    q('.x-vin-s').textContent = (all.length ? pct(vin.length / all.length) : '—') + ' del total · ' + vin.filter((r) => r.Vinculo !== 'IMEI exacto').length + ' con IMEI mal capturado en CRM';
+    q('.x-sin').textContent = fN(all.length - vin.length);
+    q('.x-sin-s').textContent = 'IMEI no encontrado en el módulo Cash Back';
+    const ages = withOwn.filter((r) => r.Dias_Existencia != null);
+    const avg = d3.mean(ages, (r) => r.Dias_Existencia);
+    q('.x-avg').textContent = avg == null ? '—' : d3.format(',.0f')(avg) + ' días';
+    q('.x-avg-s').textContent = 'Desde la recepción · sin movimiento: ' + d3.format(',.0f')(d3.mean(all, (r) => r.Dias_Sin_Movimiento) || 0) + ' días';
+    const o60 = ages.filter((r) => r.Dias_Existencia > 60);
+    q('.x-60').textContent = fN(o60.length);
+    q('.x-60-s').textContent = ages.filter((r) => r.Dias_Existencia > 90).length + ' con más de 90 días · ' + usd(d3.sum(o60, (r) => r.Costo));
+
+    const owners = d3.rollups(withOwn, (v) => ({ n: v.length, c: d3.sum(v, (r) => r.Costo), avg: d3.mean(v, (r) => r.Dias_Existencia), max: d3.max(v, (r) => r.Dias_Existencia), o60: v.filter((r) => r.Dias_Existencia > 60).length }), (r) => r.Propietario).sort((a, b) => b[1].n - a[1].n);
+    const maxN = d3.max(owners, (d) => d[1].n) || 1;
+    const t = el('table'); const hr = el('tr');
+    ['Ejecutivo', 'Equipos', 'Costo en inventario', 'Días promedio', 'Más antiguo', '> 60 días'].forEach((h, i) => hr.appendChild(el('th', i ? 'num' : null, h)));
+    const th = el('thead'); th.appendChild(hr); t.appendChild(th);
+    const tb = el('tbody');
+    for (const [name, o] of owners) {
+      const tr = el('tr', p.xown === name ? 'sel' : null); tr.dataset.key = name;
+      const n = el('td', 'num'); const bar = el('i', 'x-bar'); bar.style.width = Math.max(4, 60 * o.n / maxN) + 'px'; n.append(bar, document.createTextNode(fN(o.n)));
+      const o6 = el('td', 'num', fN(o.o60)); if (o.o60) { o6.style.color = 'var(--color-bad)'; o6.style.fontWeight = 'var(--cds-font-weight-medium)'; }
+      tr.append(el('td', null, name), n, el('td', 'num', usd(o.c)), el('td', 'num', o.avg == null ? '—' : d3.format(',.0f')(o.avg)), el('td', 'num', o.max == null ? '—' : fN(o.max) + ' d'), o6);
+      tb.appendChild(tr);
+    }
+    const tt = el('tr');
+    tt.append(el('td', null, 'Total'), el('td', 'num', fN(withOwn.length)), el('td', 'num', usd(d3.sum(withOwn, (r) => r.Costo))), el('td', 'num', avg == null ? '—' : d3.format(',.0f')(avg)), el('td', 'num', ages.length ? fN(d3.max(ages, (r) => r.Dias_Existencia)) + ' d' : '—'), el('td', 'num', fN(o60.length)));
+    tt.querySelectorAll('td').forEach((c) => { c.style.fontWeight = 'var(--cds-font-weight-medium)'; c.style.borderTop = '2px solid var(--cb-red)'; });
+    tb.appendChild(tt); t.appendChild(tb); ownBox.appendChild(t);
+
+    fill(so, 'Todos los ejecutivos', [...new Set(withOwn.map((r) => r.Propietario))].sort((a, b) => a.localeCompare(b, 'es')), p.xown);
+    fill(sb, 'Todas las bodegas', [...new Set(all.map((r) => r.Bodega))].sort(), p.xbod);
+    fill(sv, 'Todos los vínculos', VORD.filter((v) => all.some((r) => r.Vinculo === v)), p.xvin);
+    let rows = all;
+    if (p.xown) rows = rows.filter((r) => r.Propietario === p.xown);
+    if (p.xbod) rows = rows.filter((r) => r.Bodega === p.xbod);
+    if (p.xvin) rows = rows.filter((r) => r.Vinculo === p.xvin);
+    const s = (p.xq || '').trim().toLowerCase();
+    if (s) rows = rows.filter((r) => [r.Articulo, r.IMEI, r.N_Cashback, r.SKU, r.Propietario, r.Documento].join(' ').toLowerCase().includes(s));
+    const k = sort.k, dir = sort.dir;
+    rows = rows.slice().sort((a, b) => { const c = NUM.includes(k) ? (a[k] ?? -1) - (b[k] ?? -1) : String(a[k] || '').localeCompare(String(b[k] || ''), 'es', { numeric: true }); return (c || String(a.IMEI).localeCompare(String(b.IMEI))) * dir; });
+    q('.x-tab thead').querySelectorAll('th').forEach((h) => { const b = h.querySelector('button'); h.setAttribute('aria-sort', b && b.dataset.k === k ? (dir > 0 ? 'ascending' : 'descending') : 'none'); });
+    q('.x-sum').textContent = fN(rows.length) + ' equipos · ' + usd(d3.sum(rows, (r) => r.Costo)) + ' al costo';
+    const frag = document.createDocumentFragment();
+    for (const r of rows) {
+      const a = r.Dias_Existencia;
+      const tr = el('tr', a > 90 ? 'x-a3' : a > 60 ? 'x-a2' : a > 30 ? 'x-a1' : null); tr.dataset.key = r.IMEI;
+      const vb = el('td'); vb.appendChild(el('span', 'cb-badge ' + (VB[r.Vinculo] || 'hist'), r.Vinculo));
+      if (r.Vinculo === 'IMEI con error de captura') vb.title = 'IMEI en CRM: ' + r.IMEI_CRM;
+      const um = el('td'); um.appendChild(document.createTextNode(fd(r.Fecha_Ultimo_Mov))); um.appendChild(el('div', null, (r.Ultimo_Movimiento || '') + ' ' + (r.Documento || ''))); um.lastChild.style.cssText = 'color:var(--color-fg-muted);font-size:11px';
+      tr.append(el('td', null, r.Marca), el('td', 'wrap', r.Articulo), el('td', null, r.IMEI), el('td', null, r.Propietario || '—'), el('td', null, fd(r.Fecha_Recepcion) || '—'), el('td', 'num', a == null ? '—' : fN(a)), el('td', null, r.Bodega), um, el('td', 'num', r.Dias_Sin_Movimiento == null ? '—' : fN(r.Dias_Sin_Movimiento)), el('td', null, r.N_Cashback || '—'), vb, el('td', 'num', usd(r.Costo)));
+      frag.appendChild(tr);
+    }
+    tbody.appendChild(frag);
+  }
+  dash.onData(draw);
+})();
+
+// Botones del encabezado. En la copia web «Actualizar» vuelve a leer la última copia de Zoho
+// y «Exportar a HTML» descarga la vista actual.
+(function () {
+  const root = document.getElementById('cb');
+  const bR = root.querySelector('.cb-refresh'), bE = root.querySelector('.cb-export'), msg = root.querySelector('.cb-act-msg');
+  const LIVE = ['cashback', 'ventas'];
+  let refreshing = false;
+  const hhmm = (d) => d.toLocaleString('es-NI', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  bR.addEventListener('click', () => {
+    if (refreshing) return;
+    refreshing = true; bR.disabled = true; bR.classList.add('spin');
+    msg.textContent = 'Actualizando Cash Back (CRM) y ventas (Books)…';
+    LIVE.forEach((id) => { try { dash.refresh(id); } catch (e) {} });
+  });
+  dash.onData(() => {
+    if (!refreshing) return;
+    const st = LIVE.map((id) => dash.data(id));
+    if (st.some((s) => s.refreshing || s.status === 'loading')) return;
+    refreshing = false; bR.disabled = false; bR.classList.remove('spin');
+    const bad = st.filter((s) => s.status !== 'ok');
+    msg.textContent = bad.length ? 'No se pudo actualizar una de las fuentes.' : 'Datos de la última lectura de Zoho · existencias según el último reporte cargado';
+  });
+  bE.addEventListener('click', async () => {
+    bE.disabled = true; msg.textContent = 'Preparando el archivo HTML…';
+    try {
+      const now = new Date();
+      const clone = root.cloneNode(true);
+      clone.querySelectorAll('.cb-actions, .cb-tip').forEach((n) => n.remove());
+      const styles = [...document.querySelectorAll('style, link[rel=stylesheet]')].map((s) => s.outerHTML).join('\n');
+      const html = '<!DOCTYPE html>\n<html lang="es">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<title>Dashboard Cashback / Trade-in · Solís Comercial</title>\n'
+        + styles + '\n</head>\n<body>\n<div id="dash-root">\n<div style="max-width:1400px;margin:0 auto 12px;font-size:12px;color:#6b6a66;text-align:right">Corte de datos: ' + hhmm(now) + ' · vista estática</div>\n' + clone.outerHTML + '\n</div>\n</body>\n</html>\n';
+      const downloads = await window.solis.use('downloads');
+      const ymd = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+      await downloads.save({ filename: 'Dashboard_Cashback_Solis_' + ymd + '.html', data: html });
+      msg.textContent = 'Archivo HTML generado (' + hhmm(now) + ').';
+    } catch (e) {
+      msg.textContent = 'No se pudo exportar: ' + ((e && e.message) || e);
+    } finally { bE.disabled = false; }
+  });
+})();
+
+</script>
+</body>
+</html>
