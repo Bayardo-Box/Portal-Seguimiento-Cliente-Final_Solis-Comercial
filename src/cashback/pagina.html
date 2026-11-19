@@ -1,0 +1,302 @@
+<style>
+#dash-root { --dash-gutter: clamp(16px, 3vw, 32px); }
+.cb { position: relative; font-family: var(--font-anthropic-sans); color: var(--color-fg); max-width: 1400px; margin-inline: auto; display: flex; flex-direction: column; gap: var(--cds-gap-lg); padding-bottom: var(--cds-pad-xl); }
+.cb-head h1 { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; line-height: 1.2; }
+.cb-head p { margin: var(--cds-gap-xs) 0 0; color: var(--color-fg-muted); font-size: var(--cds-font-size-body); max-width: 70ch; }
+.cb-filters { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm) var(--cds-gap-md); align-items: flex-end; background: var(--color-bg); padding: var(--cds-pad-sm) 0; border-bottom: 1px solid var(--color-border-line); }
+.cb-f { display: flex; flex-direction: column; gap: 2px; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.cb-f input, .cb-f select, .cb-inv-tools input, .cb-inv-tools select { font: inherit; font-size: var(--cds-font-size-body); color: var(--color-fg); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 4px 8px; min-height: 32px; }
+.cb-seg { display: inline-flex; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); overflow: hidden; }
+.cb-seg button { font: inherit; font-size: var(--cds-font-size-body); border: 0; background: var(--color-panel); color: var(--color-fg-muted); padding: 4px 12px; min-height: 32px; cursor: pointer; }
+.cb-seg button[aria-pressed="true"] { background: var(--color-fg); color: var(--color-bg); }
+.cb-btn { font: inherit; font-size: var(--cds-font-size-body); border: 1px solid var(--color-border-line); background: transparent; color: var(--color-fg); border-radius: var(--cds-radius); padding: 4px 12px; min-height: 32px; cursor: pointer; }
+.cb-section { display: flex; flex-direction: column; gap: var(--cds-gap-md); scroll-margin-top: 80px; }
+.cb-section > h2 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: var(--cds-gap-md) 0 0; display: flex; align-items: baseline; gap: var(--cds-gap-sm); }
+.cb-section > h2 span { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-weight: 400; }
+.cb-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: var(--cds-gap-md); }
+.cb-kpi { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-md) var(--cds-pad-lg); display: flex; flex-direction: column; gap: 4px; min-height: 108px; }
+.cb-kpi .lbl { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.cb-kpi .val { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); font-variant-numeric: tabular-nums; line-height: 1.15; }
+.cb-kpi .sub { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
+.cb-kpi.warn .val { color: var(--color-warn); }
+.cb-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr)); gap: var(--cds-gap-md); }
+.cb-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: flex; flex-direction: column; gap: var(--cds-gap-sm); min-width: 0; }
+.cb-card h3 { margin: 0; font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); }
+.cb-card .note { margin: 0; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.cb-chart { position: relative; min-height: 260px; }
+.cb-chart svg { display: block; }
+.cb-fail { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: inherit; height: 100%; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.cb-fail::before { content: ""; width: .375rem; height: .375rem; border-radius: 50%; background: var(--color-bad); }
+.cb-empty { display: flex; align-items: center; justify-content: center; min-height: inherit; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+[data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
+.cb-tip { position: absolute; pointer-events: none; z-index: 20; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; display: none; max-width: 280px; }
+.cb-tip .t { color: var(--cds-text-secondary); margin-bottom: 2px; }
+.cb-tip .r { display: flex; gap: 6px; align-items: center; justify-content: space-between; }
+.cb-tip .sw { width: 8px; height: 8px; border-radius: 2px; flex: none; }
+.cb-tip .r span:last-child { margin-left: 12px; color: var(--color-fg); }
+.cb-donut { display: flex; flex-wrap: wrap; align-items: center; gap: var(--cds-gap-lg); min-height: 260px; }
+.cb-donut svg { flex: none; }
+.cb-legend { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--cds-gap-sm); flex: 1; min-width: 10rem; }
+.cb-legend li { display: grid; grid-template-columns: 12px 1fr auto; gap: 8px; align-items: baseline; font-size: var(--cds-font-size-body); font-variant-numeric: tabular-nums; }
+.cb-legend .sw { width: 10px; height: 10px; border-radius: 3px; align-self: center; }
+.cb-legend .v { text-align: right; }
+.cb-legend .v small { display: block; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.cb-hbars { display: flex; flex-direction: column; gap: 6px; min-height: 260px; }
+.cb-hbar { display: grid; grid-template-columns: minmax(7rem, 11rem) 1fr auto; gap: 8px; align-items: center; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
+.cb-hbar .n { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--color-fg); }
+.cb-hbar .b { height: 14px; border-radius: 4px; background: var(--cds-chart-grid); position: relative; overflow: hidden; }
+.cb-hbar .b i { position: absolute; inset: 0 auto 0 0; border-radius: 4px; }
+.cb-hbar .v { min-width: 4.5rem; text-align: right; }
+.cb-tablewrap { overflow: auto; max-height: 560px; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); }
+.cb table { border-collapse: separate; border-spacing: 0; width: 100%; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
+.cb th, .cb td { padding: 6px 10px; text-align: left; border-bottom: 1px solid var(--color-border-line); white-space: nowrap; }
+.cb th { position: sticky; top: 0; background: var(--color-panel); z-index: 2; font-weight: var(--cds-font-weight-medium); color: var(--color-fg-muted); }
+.cb th button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+.cb td.num, .cb th.num { text-align: right; }
+.cb-matrix th:first-child, .cb-matrix td:first-child { position: sticky; left: 0; background: var(--color-panel); z-index: 1; }
+.cb-matrix th:first-child { z-index: 3; }
+.cb-matrix td .m { display: block; color: var(--color-fg); }
+.cb-matrix td .c { display: block; color: var(--color-fg-muted); }
+.cb-matrix tr.tot td { font-weight: var(--cds-font-weight-medium); border-top: 2px solid var(--color-border-line); }
+.cb-matrix td.zero { color: var(--color-fg-muted); }
+.cb-stack { display: flex; flex-direction: column; gap: 10px; }
+.cb-stack .row { display: grid; grid-template-columns: minmax(6rem, 9rem) 1fr; gap: 8px; align-items: center; font-size: var(--cds-font-size-caption); }
+.cb-stack .bar { display: flex; height: 16px; border-radius: 4px; overflow: hidden; background: var(--cds-chart-grid); }
+.cb-stack .bar i { height: 100%; }
+.cb-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+.cb-badge { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: var(--cds-font-size-caption); white-space: nowrap; }
+.cb-badge.transito { color: var(--color-warn); background: color-mix(in srgb, var(--color-warn) 14%, transparent); }
+.cb-badge.pend { color: var(--color-bad); background: color-mix(in srgb, var(--color-bad) 14%, transparent); }
+.cb-badge.ok { color: var(--color-ok); background: color-mix(in srgb, var(--color-ok) 12%, transparent); }
+.cb-badge.hist { color: var(--color-fg-muted); background: var(--cds-chart-grid); }
+.cb-inv-tools { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm); align-items: center; }
+.cb-inv-tools input[type=search] { min-width: 14rem; flex: 1; }
+.cb-inv-tools label { display: inline-flex; align-items: center; gap: 6px; font-size: var(--cds-font-size-body); }
+.cb-inv-sum { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+tr.alert-t td { background: color-mix(in srgb, var(--color-warn) 6%, transparent); }
+tr.alert-p td { background: color-mix(in srgb, var(--color-bad) 6%, transparent); }
+.cb td.wrap { white-space: normal; min-width: 14rem; }
+.cb-skel { min-height: 1em; }
+
+.cb { --cb-red: #D7141A; --cb-red-dk: #A50E13; --cb-red-lt: #F07A7E; --cb-ink: #1C1C1E; --cb-steel: #6B7280; --cb-silver: #B8BEC6;
+  --cb-accent-bg: color-mix(in srgb, var(--cb-red) 7%, var(--color-panel)); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .cb { --cb-ink: #E8E8EA; --cb-red: #EF3B41; --cb-red-lt: #F7A3A6; --cb-steel: #9CA3AF; --cb-silver: #5B616B; } }
+:root[data-theme="dark"] .cb { --cb-ink: #E8E8EA; --cb-red: #EF3B41; --cb-red-lt: #F7A3A6; --cb-steel: #9CA3AF; --cb-silver: #5B616B; }
+.cb-brand { display: flex; align-items: center; gap: var(--cds-gap-lg); flex-wrap: wrap; background: linear-gradient(100deg, #141416 0%, #26262A 62%, #3A0C0E 100%); color: #fff; border-radius: var(--cds-radius); padding: var(--cds-pad-lg) var(--cds-pad-xl); border-bottom: 4px solid var(--cb-red); }
+.cb-logo { flex: none; background: #fff; border-radius: 10px; padding: 6px 10px; display: flex; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,.35); }
+.cb-logo img { display: block; height: 64px; width: auto; }
+.cb-brand .cb-head { flex: 1; min-width: 16rem; }
+.cb-brand .eyebrow { font-size: var(--cds-font-size-caption); letter-spacing: .08em; text-transform: uppercase; color: #FF6B70; margin: 0 0 2px; }
+.cb-brand h1 { color: #fff; }
+.cb-brand .cb-head p { color: rgba(255,255,255,.78); }
+.cb-brand [data-dash-source-state=empty] { color: transparent; }
+.cb-seg button[aria-pressed="true"] { background: var(--cb-red) !important; color: #fff !important; }
+.cb-btn:hover { border-color: var(--cb-red); color: var(--cb-red); }
+.cb-f input:focus, .cb-f select:focus, .cb-inv-tools input:focus, .cb-inv-tools select:focus { outline: 2px solid color-mix(in srgb, var(--cb-red) 45%, transparent); outline-offset: 0; border-color: var(--cb-red); }
+.cb-section > h2 { padding-left: 10px; border-left: 4px solid var(--cb-red); }
+.cb-kpi { border-top: 3px solid var(--cb-ink); }
+.cb-kpi:first-child { border-top-color: var(--cb-red); background: var(--cb-accent-bg); }
+.cb-kpi:first-child .val { color: var(--cb-red); }
+.cb-kpi.warn { border-top-color: var(--color-warn); }
+.cb-card h3 { color: var(--cb-ink); }
+.cb th { color: var(--cb-ink); border-bottom: 2px solid var(--cb-red); }
+.cb-matrix tr.tot td { background: var(--cb-accent-bg); border-top: 2px solid var(--cb-red); }
+.cb-matrix tr.tot td:first-child { background: var(--cb-accent-bg); }
+.cb-matrix td .m { font-weight: var(--cds-font-weight-medium); }
+.cb tbody tr:hover td { background: color-mix(in srgb, var(--cb-red) 5%, transparent); }
+.cb-foot { display: flex; align-items: center; gap: 10px; justify-content: center; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); border-top: 1px solid var(--color-border-line); padding-top: var(--cds-pad-md); }
+.cb-foot img { height: 26px; background: #fff; border-radius: 4px; padding: 2px 4px; }
+tr.x-a1 td { background: color-mix(in srgb, #F2C94C 18%, transparent); }
+tr.x-a2 td { background: color-mix(in srgb, #F2994A 20%, transparent); }
+tr.x-a3 td { background: color-mix(in srgb, #EB5757 18%, transparent); }
+.x-pill { display:inline-block; padding:1px 8px; border-radius:999px; font-size:var(--cds-font-size-caption); }
+.x-pill.a1 { background: color-mix(in srgb, #F2C94C 30%, transparent); } .x-pill.a2 { background: color-mix(in srgb, #F2994A 32%, transparent); } .x-pill.a3 { background: color-mix(in srgb, #EB5757 30%, transparent); }
+.x-own tbody tr { cursor: pointer; }
+.x-own tbody tr.sel td { background: color-mix(in srgb, var(--cb-red) 10%, transparent); }
+.x-bar { display:inline-block; height:8px; border-radius:4px; background: var(--cb-red); vertical-align: middle; margin-right:6px; }
+.cb-actions { display:flex; flex-direction:column; align-items:flex-end; gap:6px; margin-left:auto; }
+.cb-actions .row { display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+.cb-act { font: inherit; font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); display:inline-flex; align-items:center; gap:6px; border-radius: var(--cds-radius); padding: 8px 14px; cursor:pointer; border:1px solid rgba(255,255,255,.35); background: rgba(255,255,255,.08); color:#fff; }
+.cb-act:hover { background: rgba(255,255,255,.16); }
+.cb-act.primary { background: var(--cb-red); border-color: var(--cb-red); }
+.cb-act.primary:hover { background: #B91016; }
+.cb-act[disabled] { opacity:.6; cursor:progress; }
+.cb-act svg { width:16px; height:16px; flex:none; }
+.cb-act.spin svg { animation: cbspin 1s linear infinite; }
+@keyframes cbspin { to { transform: rotate(360deg); } }
+.cb-act-msg { font-size: var(--cds-font-size-caption); color: rgba(255,255,255,.75); min-height: 1em; text-align:right; max-width: 28rem; }
+</style>
+
+<div class="cb" id="cb">
+  <div class="cb-brand" id="resumen">
+    <div class="cb-logo"><img src="__LOGO__" alt="Solís Comercial"></div>
+    <header class="cb-head">
+      <p class="eyebrow">Programa Cashback · Trade-in</p>
+      <h1>Dashboard de Cashback / Trade-in</h1>
+      <p class="cb-takeaway" data-source="registros ventas">—</p>
+    </header>
+    <div class="cb-actions">
+      <div class="row">
+        <button type="button" class="cb-act primary cb-refresh" title="Vuelve a leer Cash Back (CRM) y ventas (Books) desde Zoho"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>Actualizar desde Zoho</button>
+        <button type="button" class="cb-act cb-export" title="Descarga un archivo HTML independiente con los datos actuales"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>Exportar a HTML</button>
+      </div>
+      <div class="cb-act-msg" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <div class="cb-filters" id="filtros">
+    <label class="cb-f">Desde<input class="f-start" type="date" min="2025-01-01" max="2099-12-31"></label>
+    <label class="cb-f">Hasta<input class="f-end" type="date" min="2025-01-01" max="2099-12-31"></label>
+    <label class="cb-f">Sucursal<select class="f-suc" data-source="registros"></select></label>
+    <label class="cb-f">Estatus<select class="f-est" data-source="registros"></select></label>
+    <div class="cb-f">Ver en
+      <div class="cb-seg f-modo" role="group" aria-label="Ver en">
+        <button type="button" data-v="monto">Monto $</button>
+        <button type="button" data-v="unidades">Unidades #</button>
+      </div>
+    </div>
+    <button type="button" class="cb-btn f-reset">Restablecer</button>
+  </div>
+
+  <section class="cb-section" id="registro">
+    <h2>1 · Análisis de registro de cashback <span class="per">—</span></h2>
+    <div class="cb-kpis" data-source="registros ventas">
+      <div class="cb-kpi"><span class="lbl">Monto acumulado de cashback</span><span class="val k-monto">—</span><span class="sub k-monto-s">—</span></div>
+      <div class="cb-kpi"><span class="lbl">Transacciones acumuladas</span><span class="val k-trx">—</span><span class="sub k-trx-s">—</span></div>
+      <div class="cb-kpi"><span class="lbl">Equipos recibidos</span><span class="val k-eq">—</span><span class="sub k-eq-s">—</span></div>
+      <div class="cb-kpi"><span class="lbl">% de las ventas (Zoho Books)</span><span class="val k-share">—</span><span class="sub k-share-s">—</span></div>
+      <div class="cb-kpi warn"><span class="lbl">Pendientes / en tránsito</span><span class="val k-pend">—</span><span class="sub k-pend-s">—</span></div>
+    </div>
+
+    <div class="cb-card" id="share">
+      <h3>Peso del cashback sobre las ventas</h3>
+      <p class="note">Valoración de cashback ÷ ventas facturadas en Zoho Books (todas las sucursales, sin anuladas ni borradores), por mes.</p>
+      <div class="cb-chart c-share" data-source="registros ventas"></div>
+    </div>
+
+    <div class="cb-grid">
+      <div class="cb-card" id="tendencia">
+        <h3>Tendencia mensual</h3>
+        <p class="note n-trend">—</p>
+        <div class="cb-chart c-trend" data-source="registros"></div>
+      </div>
+      <div class="cb-card" id="marcas">
+        <h3>Participación por marca</h3>
+        <p class="note n-brand">—</p>
+        <div class="cb-donut c-brand" data-source="equipos"></div>
+      </div>
+    </div>
+    <div class="cb-card" id="modelos">
+      <h3>Top 10 modelos recibidos</h3>
+      <p class="note n-models">—</p>
+      <div class="cb-hbars c-models" data-source="equipos"></div>
+    </div>
+  </section>
+
+  <section class="cb-section" id="operativo">
+    <h2>2 · Desglose operativo por sucursal y estatus</h2>
+    <div class="cb-card" id="matriz">
+      <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:center">
+        <h3>Desempeño mensual</h3>
+        <div class="cb-seg f-grupo" role="group" aria-label="Agrupar por">
+          <button type="button" data-v="sucursal">Por sucursal</button>
+          <button type="button" data-v="propietario">Por propietario de venta</button>
+        </div>
+      </div>
+      <p class="note">Cada celda: monto $ arriba, transacciones abajo. Promedio mensual sobre los meses del rango; ticket = monto ÷ transacciones.</p>
+      <div class="cb-tablewrap c-matrix" data-source="registros"></div>
+    </div>
+    <div class="cb-grid">
+      <div class="cb-card" id="estatus">
+        <h3>Desglose por estatus del registro</h3>
+        <p class="note">Estatus derivado de los campos Estatus, Recibido en caja y Recibido en operaciones.</p>
+        <div class="c-status" data-source="registros"></div>
+      </div>
+      <div class="cb-card" id="estatus-sucursal">
+        <h3>Estatus por sucursal</h3>
+        <p class="note n-stack">—</p>
+        <div class="cb-stack c-stack" data-source="registros"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cb-section" id="inventario">
+    <h2>3 · Control de inventario remanente <span>equipos ingresados por cashback</span></h2>
+    <div class="cb-card">
+      <div class="cb-inv-tools">
+        <input type="search" class="i-q" placeholder="Buscar cliente, IMEI, factura, N° CB…" aria-label="Buscar">
+        <select class="i-mod" aria-label="Modelo de equipo" data-source="equipos"></select>
+        <label><input type="checkbox" class="i-alert"> Solo pendientes / en tránsito</label>
+        <span class="cb-inv-sum">—</span>
+      </div>
+      <div class="cb-tablewrap">
+        <table class="c-inv" data-source="registros" data-row-key="Numero">
+          <thead><tr>
+            <th data-field="Alerta"><button type="button" data-k="Alerta">Alerta</button></th>
+            <th data-field="Numero"><button type="button" data-k="Numero">N° CB</button></th>
+            <th data-field="Fecha"><button type="button" data-k="Fecha">Fecha registro</button></th>
+            <th data-field="Cliente"><button type="button" data-k="Cliente">Cliente</button></th>
+            <th data-field="Modelo"><button type="button" data-k="Modelo">Equipo / modelo</button></th>
+            <th data-field="IMEI"><button type="button" data-k="IMEI">IMEI / eSIM</button></th>
+            <th data-field="Factura"><button type="button" data-k="Factura">Factura cashback</button></th>
+            <th data-field="Sucursal"><button type="button" data-k="Sucursal">Sucursal</button></th>
+            <th data-field="Estado"><button type="button" data-k="Estado">Estatus</button></th>
+            <th data-field="Total" class="num"><button type="button" data-k="Total">Total valoración</button></th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+  <section class="cb-section" id="existencias">
+    <h2>4 · Inventario de equipos recibidos en cashback <span>equipos usados disponibles por IMEI · reporte de números de serie de Zoho</span></h2>
+    <div class="cb-kpis" data-source="existencias_vinculadas">
+      <div class="cb-kpi"><span class="lbl">Equipos usados disponibles</span><span class="val x-tot">—</span><span class="sub x-tot-s">—</span></div>
+      <div class="cb-kpi"><span class="lbl">Vinculados a un cashback por IMEI</span><span class="val x-vin">—</span><span class="sub x-vin-s">—</span></div>
+      <div class="cb-kpi"><span class="lbl">Sin registro de cashback</span><span class="val x-sin">—</span><span class="sub x-sin-s">—</span></div>
+      <div class="cb-kpi"><span class="lbl">Antigüedad promedio</span><span class="val x-avg">—</span><span class="sub x-avg-s">—</span></div>
+      <div class="cb-kpi warn"><span class="lbl">Más de 60 días en existencia</span><span class="val x-60">—</span><span class="sub x-60-s">—</span></div>
+    </div>
+
+    <div class="cb-card" id="x-ejecutivos">
+      <h3>Existencias por ejecutivo que recibió el equipo</h3>
+      <p class="note">Equipos con ejecutivo identificado (cashback o factura de recepción). Clic en un ejecutivo para filtrar el detalle.</p>
+      <div class="cb-tablewrap x-own" data-source="existencias_vinculadas"></div>
+    </div>
+
+    <div class="cb-card" id="x-detalle">
+      <h3>Detalle por equipo</h3>
+      <p class="note">Cada IMEI disponible se busca en el módulo Cash Back. "IMEI con error de captura" = el IMEI del CRM difiere en 1–2 dígitos del de Zoho; conviene corregirlo en el CRM. Bodega = ubicación actual en Zoho; último movimiento = entrada o transferencia más reciente.</p>
+      <div class="cb-inv-tools">
+        <input type="search" class="x-q" placeholder="Buscar IMEI, modelo, N° CB, documento…" aria-label="Buscar equipo">
+        <select class="x-ownsel" aria-label="Ejecutivo" data-source="existencias_vinculadas"></select>
+        <select class="x-bodsel" aria-label="Bodega" data-source="existencias_vinculadas"></select>
+        <select class="x-vinsel" aria-label="Vínculo" data-source="existencias_vinculadas"></select>
+        <span class="cb-inv-sum x-sum">—</span>
+      </div>
+      <div class="cb-tablewrap">
+        <table class="x-tab" data-source="existencias_vinculadas" data-row-key="IMEI">
+          <thead><tr>
+            <th data-field="Marca"><button type="button" data-k="Marca">Marca</button></th>
+            <th data-field="Articulo"><button type="button" data-k="Articulo">Modelo</button></th>
+            <th data-field="IMEI"><button type="button" data-k="IMEI">IMEI / N° de serie</button></th>
+            <th data-field="Propietario"><button type="button" data-k="Propietario">Ejecutivo / propietario</button></th>
+            <th data-field="Fecha_Recepcion"><button type="button" data-k="Fecha_Recepcion">Fecha de recepción</button></th>
+            <th data-field="Dias_Existencia" class="num"><button type="button" data-k="Dias_Existencia">Días en existencia</button></th>
+            <th data-field="Bodega"><button type="button" data-k="Bodega">Bodega</button></th>
+            <th data-field="Fecha_Ultimo_Mov"><button type="button" data-k="Fecha_Ultimo_Mov">Último movimiento</button></th>
+            <th data-field="Dias_Sin_Movimiento" class="num"><button type="button" data-k="Dias_Sin_Movimiento">Días sin movimiento</button></th>
+            <th data-field="N_Cashback"><button type="button" data-k="N_Cashback">N° CB</button></th>
+            <th data-field="Vinculo"><button type="button" data-k="Vinculo">Vínculo</button></th>
+            <th data-field="Costo" class="num"><button type="button" data-k="Costo">Costo</button></th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="note" style="margin-top:6px">Color por días en existencia: <span class="x-pill a1">31–60</span> <span class="x-pill a2">61–90</span> <span class="x-pill a3">más de 90</span></p>
+    </div>
+  </section>
+
+  <footer class="cb-foot"><img src="__LOGO__" alt=""><span>Solís Comercial · Datos en vivo de Zoho CRM (Cash Back) y Zoho Books (facturación)</span></footer>
+  <div class="cb-tip" role="tooltip"></div>
+</div>
