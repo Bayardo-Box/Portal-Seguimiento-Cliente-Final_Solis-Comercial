@@ -1,0 +1,6 @@
+/datos/*
+  Cache-Control: no-cache
+/tableros/*
+  Cache-Control: no-cache
+/
+  Cache-Control: no-cache
