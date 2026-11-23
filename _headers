@@ -1,6 +1,14 @@
+# Foto fija: el navegador solo puede pedir archivos de este mismo sitio (connect-src 'self').
+# Así ninguna página puede consultar Zoho ni ningún otro servicio al abrirse.
+/*
+  Content-Security-Policy: connect-src 'self'; form-action 'self'; base-uri 'self'; object-src 'none'
+  Referrer-Policy: no-referrer
+  X-Content-Type-Options: nosniff
 /datos/*
   Cache-Control: no-cache
 /tableros/*
   Cache-Control: no-cache
 /
+  Cache-Control: no-cache
+/index.html
   Cache-Control: no-cache

@@ -11,7 +11,7 @@ Uso:
   python3 snap/zoho.py may ARCHIVO                  -> datos/wb_may.json.gz (clientes mayoristas; respuesta COQL o lista JSON de ids)
   python3 snap/zoho.py totales AAAA-MM TOTAL NUM     -> datos/totales.json (facturado bruto del mes, todas las facturas)
   python3 snap/zoho.py estados ESTADO ARCHIVO...     -> datos/totales.json (anuladas 'void' o borrador 'draft' por mes)
-  python3 snap/zoho.py cerrar                        -> datos/meta.json con la hora de corte
+  python3 snap/zoho.py cerrar [tablero ...]          -> datos/meta.json (hora de corte) y datos/manifest.json
   python3 snap/zoho.py revisar                       -> resumen de lo que hay en datos/
 
 ARCHIVO es el archivo donde Claude guardó la respuesta de la herramienta
@@ -169,12 +169,14 @@ def ahora():
     return (datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None) - datetime.timedelta(hours=6)).strftime('%Y-%m-%dT%H:%M:%S-06:00')
 
 
-def cerrar():
+def cerrar(tableros=()):
     meta = json_leer('meta.json', {})
     meta['corte'] = ahora()
     meta['meses_facturas'] = sorted(f[9:16] for f in os.listdir(DATOS) if f.startswith('facturas_') and f.endswith('.json.gz'))
     json_guardar('meta.json', meta)
     print('OK corte', meta['corte'])
+    import subprocess
+    subprocess.run([sys.executable, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'manifiesto.py'), *tableros], check=False)
 
 
 def revisar():
@@ -199,6 +201,6 @@ if __name__ == '__main__':
     elif c == 'may': may(a[1])
     elif c == 'totales': totales(a[1], a[2], a[3])
     elif c == 'estados': estados(a[1], a[2:])
-    elif c == 'cerrar': cerrar()
+    elif c == 'cerrar': cerrar(a[1:])
     elif c == 'revisar': revisar()
     else: print(__doc__); sys.exit(1)

@@ -1,4 +1,4 @@
-# Actualización de datos del portal (Claude · 7:00, 13:30 y 17:45 Managua)
+# Actualización de datos del portal («foto» programada por tablero)
 
 Este procedimiento lo ejecuta Claude con los conectores **Zoho Books** y **Zoho CRM**. Lee Zoho,
 guarda una copia de datos en `datos/` y la sube a GitHub; Cloudflare Pages publica el sitio solo.
@@ -16,6 +16,14 @@ Reglas:
 cd <carpeta del repositorio>   # Bayardo-Box/Portal-Seguimiento-Cliente-Final_Solis-Comercial
 mkdir -p /tmp/snap
 ```
+```bash
+python3 snap/debido.py          # según snap/calendario.json
+```
+- Si dice `NADA`: no toca ningún corte ahora. Termina con una línea («Sin corte programado») y no cambies nada.
+- Si dice `TABLEROS: …` y `DATOS: …`: ejecuta SOLO los pasos de esos datos y guarda la lista de tableros (`TAB`).
+  `facturas` = pasos 1; `lineas` = 1b; `cashback` = 2; `wb` = 3. Los datos que no estén en la lista se dejan como están.
+- Si el administrador pidió «actualizar ahora» a mano, usa `python3 snap/debido.py --todos`.
+
 Define `MES` = mes actual (AAAA-MM) y `ULT` = último día del mes.
 
 ## 1. Facturas del mes (Plan de Ventas, Dashboard de Ventas y Cashback)
@@ -89,7 +97,8 @@ artifact; esos se sincronizan a pedido del administrador, no en la rutina.)
 
 ## 5. Cerrar y publicar
 ```bash
-python3 snap/zoho.py cerrar
+python3 snap/zoho.py cerrar $TAB      # TAB = tableros del paso 0 (ej. plan ventas); sella su corte en datos/manifest.json
+python3 snap/verificar.py             # debe decir OK: ninguna página consulta Zoho al abrirse
 python3 snap/zoho.py revisar
 python3 snap/lineas.py revisar
 git add -A datos src tableros index.html

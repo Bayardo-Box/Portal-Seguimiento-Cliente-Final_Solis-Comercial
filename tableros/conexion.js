@@ -143,13 +143,15 @@
 
   /* ---------------- sello de corte ---------------- */
   function sello() {
-    meta().then(function (m) {
-      var d = new Date(Date.parse(m.corte));
+    var id = (location.pathname.match(/([\w-]+)\.html?$/) || [])[1];
+    Promise.all([meta(), traer('manifest.json').catch(function () { return null; })]).then(function (r) {
+      var t = r[1] && r[1].tableros && r[1].tableros[id];
+      var d = new Date(Date.parse((t && t.corte) || r[0].corte));
       if (isNaN(d)) return;
       var txt = d.toLocaleString('es-NI', { timeZone: 'America/Managua', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
       var el = document.createElement('div');
       el.setAttribute('role', 'status');
-      el.title = 'Copia de Zoho que Claude actualiza a las 7:00, 12:00, 15:00 y 18:00';
+      el.title = 'Foto fija de Zoho: esta página no consulta Zoho al abrirse; se renueva en cada corte programado';
       el.style.cssText = 'position:fixed;right:12px;bottom:12px;z-index:9999;background:rgba(15,23,42,.88);color:#fff;font:600 12px/1.2 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:7px 11px;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.25);pointer-events:none';
       el.textContent = 'Datos de Zoho al ' + txt;
       document.body.appendChild(el);

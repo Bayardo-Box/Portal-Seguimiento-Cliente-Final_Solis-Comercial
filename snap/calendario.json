@@ -1,0 +1,17 @@
+{
+ "zona": "America/Managua",
+ "tolerancia_min": 40,
+ "nota": "Cortes en hora de Managua. Para cambiar cuándo se toma la foto de un tablero, edita solo 'cortes'. La tarea programada despierta cada hora a los :45 y snap/debido.py decide qué tableros toca.",
+ "tableros": {
+  "plan":     {"nombre": "Plan de Ventas",      "html": "tableros/plan.html",     "datos": ["facturas"],             "cortes": ["07:00","08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00"]},
+  "ventas":   {"nombre": "Dashboard de Ventas", "html": "tableros/ventas.html",   "datos": ["facturas","lineas"],    "cortes": ["07:00","08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00"]},
+  "winback":  {"nombre": "Recontacto de Clientes", "html": "tableros/winback.html", "datos": ["wb"],                 "cortes": ["07:00","08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00"]},
+  "cashback": {"nombre": "Cashback",            "html": "tableros/cashback.html", "datos": ["facturas","cashback"],  "cortes": ["07:00","08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00"]}
+ },
+ "archivos_por_dato": {
+  "facturas": ["totales.json","facturas_*.json.gz"],
+  "lineas":   ["lineas.json"],
+  "cashback": ["cashback.json.gz"],
+  "wb":       ["wb_fac.json.gz","wb_pot.json.gz","wb_may.json.gz","wb_task.json.gz","wb_call.json.gz","wb_deal.json.gz"]
+ }
+}
