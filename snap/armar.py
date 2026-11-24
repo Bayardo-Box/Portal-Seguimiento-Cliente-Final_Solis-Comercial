@@ -100,7 +100,14 @@ AJUSTES = {
         ('Consultando facturas en Zoho Books…','Cargando facturas…'),
         ('Leyendo detalle de categorías y marcas en Zoho…','Cargando detalle de categorías y marcas…'),
     ],
-    'winback': [],
+    'winback': [
+        ("setLive('ok', 'En vivo · ' + META.leido.toLocaleTimeString('es-NI', { hour: '2-digit', minute: '2-digit' }));",
+         "setLive('ok', 'Foto de Zoho · ' + (window.SolisCorte || META.leido).toLocaleString('es-NI', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }));"),
+        ('Fuente: Zoho CRM en vivo (','Fuente: foto de Zoho CRM ('),
+        ('Se actualiza solo cada ${AUTO_MIN} minutos mientras está abierto.','Se renueva en cada corte programado (cada hora, de 7:00 a. m. a 6:00 p. m.); al recargar la página ves el último corte.'),
+        ('Estatus, asignaciones y oportunidades se guardan para todo el equipo.','Vista de consulta: los estatus y asignaciones se gestionan en Zoho CRM.'),
+        ('Leyendo datos actuales de Zoho CRM…','Cargando la última foto de datos…'),
+    ],
 }
 for n in ['ventas', 'winback']:
     h = con_conexion(leer(f'src/originales/{n}.html'))

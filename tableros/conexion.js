@@ -13,12 +13,15 @@
     var s = document.currentScript && document.currentScript.src;
     return s ? s.replace(/tableros\/conexion\.js.*$/, 'datos/') : '../datos/';
   })();
-  var VERSION = String(Date.now() - (Date.now() % 300000)); // evita copias viejas en caché (5 min)
+  var VIDA = 300000; // una copia leída se reutiliza 5 min; después se vuelve a pedir (así una página abierta todo el día toma cada corte nuevo)
+  var version = function () { return String(Date.now() - (Date.now() % VIDA)); };
+  var tomada = {};
   var cache = {};
 
   function traer(nombre) {
-    if (cache[nombre]) return cache[nombre];
-    var url = BASE + nombre + '?v=' + VERSION;
+    if (cache[nombre] && Date.now() - tomada[nombre] < VIDA) return cache[nombre];
+    tomada[nombre] = Date.now();
+    var url = BASE + nombre + '?v=' + version();
     cache[nombre] = fetch(url, { cache: 'no-cache' }).then(async function (r) {
       if (!r.ok) throw errorDe('server_unavailable', 'No se encontró ' + nombre + ' (' + r.status + ')');
       if (/\.gz$/.test(nombre)) {
@@ -37,6 +40,7 @@
 
   function errorDe(code, msg) { var e = new Error(msg || code); e.code = code; e.retryable = false; return e; }
   var meta = function () { return traer('meta.json'); };
+  meta().then(function (m) { window.SolisCorte = new Date(Date.parse(m.corte)); }).catch(function () {});
   var corteMs = function () { return meta().then(function (m) { return Date.parse(m.corte) || Date.now(); }); };
 
   /* ---------------- Zoho Books · list_invoices ---------------- */

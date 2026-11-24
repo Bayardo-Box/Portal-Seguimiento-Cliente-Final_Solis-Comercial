@@ -84,7 +84,7 @@
   <div class="bg-white rounded-xl border border-slate-200 p-5 flex items-start gap-3">
     <i data-lucide="loader-circle" id="loadIcon" class="w-5 h-5 text-brand-600 animate-spin mt-0.5"></i>
     <div class="flex-1">
-      <div id="loadTitle" class="font-semibold text-slate-900">Leyendo datos actuales de Zoho CRM…</div>
+      <div id="loadTitle" class="font-semibold text-slate-900">Cargando la última foto de datos…</div>
       <div id="loadMsg" class="text-sm text-slate-500 mt-0.5">Facturas, contactos y usuarios. La primera vez Claude te pedirá permiso para usar tu conector de Zoho CRM.</div>
       <div class="mt-3 h-1.5 rounded-full bg-slate-100 overflow-hidden max-w-md"><div id="loadBar" class="h-full bg-brand-600 transition-all" style="width:3%"></div></div>
       <button id="loadRetry" class="hidden mt-3 px-3 py-1.5 rounded-md bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium">Reintentar</button>
@@ -1125,8 +1125,8 @@ async function loadLive(refresh) {
     LOADED = true;
     $('loadPanel').classList.add('hidden'); $('mainArea').classList.remove('hidden');
     $('srcInfo').innerHTML = `<i data-lucide="receipt" class="w-4 h-4"></i> ${num(META.facturas)} facturas · ${num(META.clientes)} clientes · ${num(META.potenciales)} potenciales`;
-    $('footNote').textContent = `Fuente: Zoho CRM en vivo (módulo Facturas sincronizado desde Zoho Books, sin el vendedor Mayorista, anuladas ni borradores; Contactos; Usuarios). Estatus: "Venta Cerrada" cuando el cliente vuelve a facturar tras 6+ meses (o gana una oportunidad); "En Negociación" con una oportunidad abierta; "Contactado" con tareas, llamadas o fecha de recontacto en el CRM al menos ${DIAS_MIN_SEÑAL} días después de su última compra; lo registrado en este tablero tiene prioridad sobre el CRM. Equipo de la última compra según la clasificación de productos de Books hasta ${fmtDate(EQUIPOS_HASTA)}. Se actualiza solo cada ${AUTO_MIN} minutos mientras está abierto. Estatus, asignaciones y oportunidades se guardan para todo el equipo.`;
-    setLive('ok', 'En vivo · ' + META.leido.toLocaleTimeString('es-NI', { hour: '2-digit', minute: '2-digit' }));
+    $('footNote').textContent = `Fuente: foto de Zoho CRM (módulo Facturas sincronizado desde Zoho Books, sin el vendedor Mayorista, anuladas ni borradores; Contactos; Usuarios). Estatus: "Venta Cerrada" cuando el cliente vuelve a facturar tras 6+ meses (o gana una oportunidad); "En Negociación" con una oportunidad abierta; "Contactado" con tareas, llamadas o fecha de recontacto en el CRM al menos ${DIAS_MIN_SEÑAL} días después de su última compra; lo registrado en este tablero tiene prioridad sobre el CRM. Equipo de la última compra según la clasificación de productos de Books hasta ${fmtDate(EQUIPOS_HASTA)}. Se renueva en cada corte programado (cada hora, de 7:00 a. m. a 6:00 p. m.); al recargar la página ves el último corte. Vista de consulta: los estatus y asignaciones se gestionan en Zoho CRM.`;
+    setLive('ok', 'Foto de Zoho · ' + (window.SolisCorte || META.leido).toLocaleString('es-NI', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }));
     update();
   } catch (e) {
     const t = errorText(e);
@@ -1160,7 +1160,7 @@ async function saveFile(filename, data, msg) {
 $('btnRefresh').addEventListener('click', () => loadLive(true));
 $('loadRetry').addEventListener('click', () => {
   $('loadIcon').setAttribute('data-lucide', 'loader-circle'); $('loadIcon').classList.add('animate-spin'); $('loadIcon').classList.replace('text-red-600', 'text-brand-600');
-  $('loadTitle').textContent = 'Leyendo datos actuales de Zoho CRM…'; $('loadRetry').classList.add('hidden'); refreshIcons(); loadLive(false);
+  $('loadTitle').textContent = 'Cargando la última foto de datos…'; $('loadRetry').classList.add('hidden'); refreshIcons(); loadLive(false);
 });
 setInterval(() => { if (LOADED && document.visibilityState === 'visible') loadLive(true); }, AUTO_MIN * 60000);
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && LOADED && META.leido && (Date.now() - META.leido) > AUTO_MIN * 60000) loadLive(true); });
