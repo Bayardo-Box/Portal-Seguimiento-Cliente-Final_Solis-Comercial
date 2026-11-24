@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generado": "2026-11-24T13:43:21-06:00",
+ "generado": "2026-11-24T13:49:07-06:00",
  "tableros": {
   "plan": {
    "nombre": "Plan de Ventas",
@@ -9,7 +9,7 @@
     {
      "f": "totales.json",
      "bytes": 2516,
-     "sha": "1bb297b78a5c"
+     "sha": "d24820ca3306"
     },
     {
      "f": "facturas_2025-10.json.gz",
@@ -28,11 +28,11 @@
     },
     {
      "f": "facturas_2026-11.json.gz",
-     "bytes": 31151,
-     "sha": "69fe2c4b1c34"
+     "bytes": 31177,
+     "sha": "b25b8c8012be"
     }
    ],
-   "corte": "2026-11-24T13:43:21-06:00"
+   "corte": "2026-11-24T13:49:07-06:00"
   },
   "ventas": {
    "nombre": "Dashboard de Ventas",
@@ -41,7 +41,7 @@
     {
      "f": "totales.json",
      "bytes": 2516,
-     "sha": "1bb297b78a5c"
+     "sha": "d24820ca3306"
     },
     {
      "f": "facturas_2025-10.json.gz",
@@ -60,16 +60,16 @@
     },
     {
      "f": "facturas_2026-11.json.gz",
-     "bytes": 31151,
-     "sha": "69fe2c4b1c34"
+     "bytes": 31177,
+     "sha": "b25b8c8012be"
     },
     {
      "f": "lineas.json",
-     "bytes": 48938,
-     "sha": "084891f1a111"
+     "bytes": 55257,
+     "sha": "902b0e4a89c0"
     }
    ],
-   "corte": "2026-11-24T13:43:21-06:00"
+   "corte": "2026-11-24T13:49:07-06:00"
   },
   "winback": {
    "nombre": "Recontacto de Clientes",
@@ -77,13 +77,13 @@
    "archivos": [
     {
      "f": "wb_fac.json.gz",
-     "bytes": 505771,
-     "sha": "05f27bdb146c"
+     "bytes": 505772,
+     "sha": "786f0c7a7ebd"
     },
     {
      "f": "wb_pot.json.gz",
-     "bytes": 346316,
-     "sha": "8c132e310d72"
+     "bytes": 346322,
+     "sha": "44c6aa854d94"
     },
     {
      "f": "wb_may.json.gz",
@@ -92,21 +92,21 @@
     },
     {
      "f": "wb_task.json.gz",
-     "bytes": 179551,
-     "sha": "9a616f6d239e"
+     "bytes": 179550,
+     "sha": "e76c9eb40f31"
     },
     {
      "f": "wb_call.json.gz",
-     "bytes": 5928,
-     "sha": "13e20cff3591"
+     "bytes": 5929,
+     "sha": "79c6dce00c7a"
     },
     {
      "f": "wb_deal.json.gz",
-     "bytes": 212214,
-     "sha": "bd31c3a1cac0"
+     "bytes": 212215,
+     "sha": "324b26618729"
     }
    ],
-   "corte": "2026-11-24T13:43:21-06:00"
+   "corte": "2026-11-24T13:49:07-06:00"
   },
   "cashback": {
    "nombre": "Cashback",
@@ -115,7 +115,7 @@
     {
      "f": "totales.json",
      "bytes": 2516,
-     "sha": "1bb297b78a5c"
+     "sha": "d24820ca3306"
     },
     {
      "f": "facturas_2025-10.json.gz",
@@ -134,16 +134,16 @@
     },
     {
      "f": "facturas_2026-11.json.gz",
-     "bytes": 31151,
-     "sha": "69fe2c4b1c34"
+     "bytes": 31177,
+     "sha": "b25b8c8012be"
     },
     {
      "f": "cashback.json.gz",
-     "bytes": 48130,
-     "sha": "c4c4f5d81b04"
+     "bytes": 48131,
+     "sha": "7f30488295d6"
     }
    ],
-   "corte": "2026-11-24T13:43:21-06:00"
+   "corte": "2026-11-24T13:49:07-06:00"
   }
  }
 }
