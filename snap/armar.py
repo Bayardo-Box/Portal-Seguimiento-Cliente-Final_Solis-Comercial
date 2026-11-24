@@ -83,8 +83,19 @@ FC = {
     'ventas': {'server': 'Zoho Books', 'tool': 'list_invoices', 'args': {'query_params': {'date_end': '2099-12-31', 'date_start': '2025-05-01', 'organization_id': ORG, 'per_page': 1, 'response_option': 3}}},
     'existencias_imei': {'filas': ex['filas']},
 }
-escribir('tableros/cashback.html', pagina('Dashboard de Cashback / Trade-in · Solís Comercial', FC, leer('src/cashback/pagina.html').replace('__LOGO__', logo),
-                                          [leer('src/cashback/datos.js'), leer('src/cashback/dibujo.js'), leer('src/cashback/existencias.js')], []))
+h = pagina('Dashboard de Cashback / Trade-in · Solís Comercial', FC, leer('src/cashback/pagina.html').replace('__LOGO__', logo),
+           [leer('src/cashback/datos.js'), leer('src/cashback/dibujo.js'), leer('src/cashback/existencias.js')], [])
+# Rótulos honestos: la web muestra una foto programada, no datos en vivo; las existencias vienen de un reporte con fecha propia.
+f_ex = '/'.join(reversed(str(ex.get('corte', '')).split('-')))
+for a, b in [
+    ('Solís Comercial · Datos en vivo de Zoho CRM (Cash Back) y Zoho Books (facturación)', 'Solís Comercial · Foto de Zoho CRM (Cash Back) y Zoho Books (facturación), renovada en cada corte programado'),
+    ('reporte de números de serie de Zoho</span>', 'reporte de números de serie de Zoho al ' + f_ex + '</span>'),
+    ('</svg>Actualizar desde Zoho','</svg>Recargar último corte'),
+    ('Vuelve a leer Cash Back (CRM) y ventas (Books) desde Zoho', 'Vuelve a leer el último corte publicado de Cash Back (CRM) y ventas (Books)'),
+]:
+    if a in h: h = h.replace(a, b)
+    else: print('AVISO: cashback: no se encontró el texto a ajustar:', a[:60])
+escribir('tableros/cashback.html', h)
 
 # ---- Ventas y Win-Back: HTML original de Claude + conexion.js
 AJUSTES = {
