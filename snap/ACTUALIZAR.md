@@ -60,6 +60,12 @@ select Numero_de_Cash_Back, Fecha, Owner.first_name, Owner.last_name, Cliente.Fu
 ```
 `python3 snap/zoho.py coql cashback <archivo>`
 
+### Existencias de equipos usados (Cashback) · manual
+El cuadro «Inventario de equipos recibidos en cashback» sale del informe de números de serie de Zoho (estado Available),
+que los conectores no pueden consultar. Se actualiza cuando el administrador adjunta el .xlsx del informe: se convierte a
+`src/cashback/existencias_imei.json` (campos Articulo, SKU, IMEI, Ultimo_movimiento, Documento, Contacto,
+Fecha_ultimo_movimiento, Bodega, Costo, Estatus, con `corte` = fecha del informe) y se corre `snap/armar.py`. Última carga: 24/11/2026.
+
 ## 3. Win-Back · Recontacto de Clientes (Zoho CRM)
 Haz este paso DESPUÉS del paso 4 (que trae la versión más reciente del tablero). Las consultas son las constantes
 `Q_FAC`, `Q_MAY`, `Q_POT`, `Q_TASK`, `Q_CALL` y `Q_DEAL` de `src/originales/winback.html`:
