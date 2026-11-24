@@ -33,13 +33,16 @@ Define `MES` = mes actual (AAAA-MM) y `ULT` = último día del mes.
 2. `python3 snap/zoho.py paginas N` → indica `per_page` (P) y el número de páginas (K).
 3. Para page = 1..K: `list_invoices` con `{organization_id, date_start: MES-01, date_end: ULT, per_page: P, page, sort_column: "created_time", sort_order: "A"}`.
 4. `python3 snap/zoho.py facturas MES <archivo1> … <archivoK>` (debe decir OK sin AVISO).
-5. Si es el día 1 del mes, repite 1–4 una vez para el mes anterior (cierre).
-6. Si NO existe `datos/facturas_<MES del año pasado>.json.gz` (comparativo interanual del Dashboard de Ventas),
-   repite 1–4 para ese mes del año pasado (solo una vez por mes).
+5. El selector de mes del Dashboard de Ventas ofrece el mes actual y el anterior (cada uno contra el mismo mes del año pasado).
+   Si NO existe `datos/facturas_<MES anterior>.json.gz`, repite 1–4 para el mes anterior (solo una vez).
+   Si es el día 1 del mes, repítelo también para cerrar el mes anterior con las facturas finales.
+6. Si NO existe `datos/facturas_<MES del año pasado>.json.gz`, o `datos/facturas_<MES anterior del año pasado>.json.gz`,
+   repite 1–4 para cada uno (comparativo interanual; solo una vez por mes).
+   Sin estos archivos el tablero muestra ese mes vacío, porque la web no consulta Zoho.
 
 ## 1b. Detalle de líneas (desglose por categoría y marca del Dashboard de Ventas)
 Hazlo después del paso 1 (necesita las facturas del mes y del mismo mes del año pasado).
-1. `python3 snap/lineas.py pendientes 60` → lista hasta 60 ids de facturas sin detalle.
+1. `python3 snap/lineas.py pendientes 120` → lista hasta 120 ids de facturas sin detalle.
 2. Para cada id: Zoho Books `get_invoice` con `{path_variables: {invoice_id: ID}, query_params: {organization_id: "872034702"}}`.
    - Si la respuesta quedó guardada en archivo, anota la ruta.
    - Si llegó en pantalla, agrega UNA línea a `/tmp/snap/lineas.jsonl` con el id y, por cada línea de la factura

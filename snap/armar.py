@@ -90,7 +90,16 @@ escribir('tableros/cashback.html', pagina('Dashboard de Cashback / Trade-in · S
 AJUSTES = {
     # El detalle de categorías y marcas se lee factura por factura (get_invoice): solo existe en el tablero de Claude.
     # El desglose por categoría y marca usa datos/lineas.json; las facturas aún sin detalle se completan en la siguiente actualización.
-    'ventas': [('${S.linesFailed} facturas no pudieron leerse y no están incluidas; se reintentan la próxima vez que abras el dashboard.','${S.linesFailed} facturas recientes aún no tienen su detalle en esta copia; se suman en la próxima actualización.')],
+    'ventas': [
+        ('${S.linesFailed} facturas no pudieron leerse y no están incluidas; se reintentan la próxima vez que abras el dashboard.','${S.linesFailed} facturas recientes aún no tienen su detalle en esta copia; se suman en la próxima actualización.'),
+        # La web lee archivos propios: sin pausas entre consultas ni reintentos con espera cuando falta el detalle de una factura.
+        ('async function paced(){ const now = Date.now(), wait = Math.max(0, nextSlot - now); nextSlot = Math.max(now, nextSlot) + 800; if(wait) await sleep(wait); }','async function paced(){ }'),
+        ('if(AUTHZ.includes(e && e.code)) throw e;\n          await sleep(','if(AUTHZ.includes(e && e.code)) throw e;\n          if(e && e.code==="sin_detalle_web") break;\n          await sleep('),
+        ('Conectando con Zoho Books…','Cargando la última foto de datos…'),
+        ('en Zoho Books…`, 0.02)','…`, 0.02)'),
+        ('Consultando facturas en Zoho Books…','Cargando facturas…'),
+        ('Leyendo detalle de categorías y marcas en Zoho…','Cargando detalle de categorías y marcas…'),
+    ],
     'winback': [],
 }
 for n in ['ventas', 'winback']:

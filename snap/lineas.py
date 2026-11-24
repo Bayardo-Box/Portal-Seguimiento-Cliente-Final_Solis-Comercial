@@ -5,7 +5,7 @@ Detalle de líneas por factura para el desglose por categoría y marca del Dashb
 El tablero de Claude lee cada factura con get_invoice. La copia web usa datos/lineas.json,
 que se llena poco a poco: cada actualización lee solo las facturas que faltan.
 
-  python3 snap/lineas.py pendientes [MAX]   -> ids de facturas sin detalle (mes actual y mismo periodo del año pasado)
+  python3 snap/lineas.py pendientes [MAX]   -> ids de facturas sin detalle (mes actual y anterior, con su mismo mes del año pasado)
   python3 snap/lineas.py agregar ARCHIVO... -> guarda el detalle. ARCHIVO puede ser:
        · la respuesta de get_invoice guardada en archivo por Claude, o
        · un .jsonl escrito a mano, una factura por línea:
@@ -46,20 +46,26 @@ def facturas(mes):
 
 
 def necesarias():
+    """Meses que el selector del Dashboard de Ventas ofrece: el actual y el anterior, cada uno con el mismo mes del año pasado."""
     t = hoy()
     out, faltan_meses = [], []
-    for y in (t.year, t.year - 1):
-        mes = f'{y}-{t.month:02d}'
-        corte = f'{y}-{t.month:02d}-{t.day:02d}'
-        inv = facturas(mes)
-        if inv is None:
-            faltan_meses.append(mes); continue
-        for i in inv:
-            if i['date'] > corte or i['status'] in ('void', 'draft'):
-                continue
-            if EXCLUDE.search(i.get('salesperson_name') or ''):
-                continue
-            out.append((y, i['date'], i['invoice_id']))
+    ant = (t.replace(day=1) - datetime.timedelta(days=1))
+    for ref, es_actual in ((t, True), (ant, False)):
+        for y in (ref.year, ref.year - 1):
+            mes = f'{y}-{ref.month:02d}'
+            if es_actual:
+                corte = f'{y}-{ref.month:02d}-{t.day:02d}'
+            else:
+                corte = f'{y}-{ref.month:02d}-31'
+            inv = facturas(mes)
+            if inv is None:
+                faltan_meses.append(mes); continue
+            for i in inv:
+                if i['date'] > corte or i['status'] in ('void', 'draft'):
+                    continue
+                if EXCLUDE.search(i.get('salesperson_name') or ''):
+                    continue
+                out.append((y if es_actual else y + 1, i['date'], i['invoice_id']))
     return out, faltan_meses
 
 

@@ -163,7 +163,7 @@ th.proj,td.proj{background:var(--sunk)}
     </header>
 
     <div id="status" class="status" role="status">
-      <div id="st-text">Conectando con Zoho Books…</div>
+      <div id="st-text">Cargando la última foto de datos…</div>
       <div class="bar"><i id="st-bar"></i></div>
     </div>
 
@@ -531,9 +531,9 @@ th.proj,td.proj{background:var(--sunk)}
       if(!mcp) mcp = await window.claude.use("mcp");
       if(!mcp){ setStatus(errCopy({code:"not_granted"}), null, true); return; }
       const mname = MONTHS[MONTH-1];
-      setStatus(`Consultando facturas de ${mname} ${YEAR} y ${mname} ${YEAR-1} en Zoho Books…`, 0.02);
+      setStatus(`Consultando facturas de ${mname} ${YEAR} y ${mname} ${YEAR-1} …`, 0.02);
       const prog = {a:[0,1], b:[0,1]};
-      const show = () => my===runId && setStatus(`Consultando facturas en Zoho Books… ${mname} ${YEAR}: bloque ${prog.a[0]}/${prog.a[1]} · ${mname} ${YEAR-1}: bloque ${prog.b[0]}/${prog.b[1]}`, 0.02 + (prog.a[0]/prog.a[1] + prog.b[0]/prog.b[1])/2*0.33);
+      const show = () => my===runId && setStatus(`Cargando facturas… ${mname} ${YEAR}: bloque ${prog.a[0]}/${prog.a[1]} · ${mname} ${YEAR-1}: bloque ${prog.b[0]}/${prog.b[1]}`, 0.02 + (prog.a[0]/prog.a[1] + prog.b[0]/prog.b[1])/2*0.33);
       const [cur, prev] = await Promise.all([
         listYear(YEAR, (d,t) => { prog.a=[d,t]; show(); }),
         listYear(YEAR-1, (d,t) => { prog.b=[d,t]; show(); }),
@@ -552,7 +552,7 @@ th.proj,td.proj{background:var(--sunk)}
   // Detalle de líneas: se guarda por factura en la base del artifact para leer cada factura de Zoho una sola vez.
   // Zoho limita a ~100 llamadas por minuto por organización: se espacian las consultas.
   let nextSlot = 0;
-  async function paced(){ const now = Date.now(), wait = Math.max(0, nextSlot - now); nextSlot = Math.max(now, nextSlot) + 800; if(wait) await sleep(wait); }
+  async function paced(){ }
   function lineAgg(inv){
     const cat = {}, brand = {};
     for(const li of (inv.line_items||[])){
@@ -596,7 +596,7 @@ th.proj,td.proj{background:var(--sunk)}
     S.lines = acc; S.linesFailed = 0; S.linesPending = todo.length; S.linesTotal = items.length;
     renderMix();
     const tick = () => { done++; S.linesPending = todo.length - done;
-      if(my===runId){ setStatus(`Leyendo detalle de categorías y marcas en Zoho… ${done}/${todo.length} facturas nuevas (${items.length - todo.length} ya guardadas)`, 0.36 + done/Math.max(1,todo.length)*0.64);
+      if(my===runId){ setStatus(`Cargando detalle de categorías y marcas… ${done}/${todo.length} facturas nuevas (${items.length - todo.length} ya guardadas)`, 0.36 + done/Math.max(1,todo.length)*0.64);
         if(done % 15 === 0 || done === todo.length) renderMix(); } };
     await pool(todo, 3, async it => {
       if(my!==runId) return;
@@ -615,6 +615,7 @@ th.proj,td.proj{background:var(--sunk)}
           }
         }catch(e){
           if(AUTHZ.includes(e && e.code)) throw e;
+          if(e && e.code==="sin_detalle_web") break;
           await sleep(4000*(attempt+1) + Math.random()*1500);
         }
       }

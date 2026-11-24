@@ -109,7 +109,7 @@
   async function getInvoice(id) {
     var lineas = await traer('lineas.json').catch(function () { return {}; });
     var ls = lineas[String(id)];
-    if (!ls) throw errorDe('tool_error', 'Factura aún sin detalle en la copia web; se completa en la próxima actualización.');
+    if (!ls) throw errorDe('sin_detalle_web', 'Factura aún sin detalle en la copia web; se completa en la próxima actualización.');
     return { status: 'success', data: { code: 0, message: 'success', invoice: { invoice_id: String(id), line_items: ls.map(function (l) {
       return { account_name: l[0], item_total: l[2], item_custom_fields: l[1] ? [{ api_name: 'cf_marca', label: 'Marca', value: l[1], value_formatted: l[1] }] : [] };
     }) } } };
