@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generado": "2026-11-25T06:48:33-06:00",
+ "generado": "2026-11-25T07:48:27-06:00",
  "tableros": {
   "plan": {
    "nombre": "Plan de Ventas",
@@ -29,10 +29,10 @@
     {
      "f": "facturas_2026-11.json.gz",
      "bytes": 31709,
-     "sha": "ca27101d24f4"
+     "sha": "2e99830b89f2"
     }
    ],
-   "corte": "2026-11-25T06:48:33-06:00"
+   "corte": "2026-11-25T07:48:27-06:00"
   },
   "ventas": {
    "nombre": "Dashboard de Ventas",
@@ -61,15 +61,15 @@
     {
      "f": "facturas_2026-11.json.gz",
      "bytes": 31709,
-     "sha": "ca27101d24f4"
+     "sha": "2e99830b89f2"
     },
     {
      "f": "lineas.json",
-     "bytes": 58639,
-     "sha": "46f6e6c9c43d"
+     "bytes": 59186,
+     "sha": "e78c7779d721"
     }
    ],
-   "corte": "2026-11-25T06:48:33-06:00"
+   "corte": "2026-11-25T07:48:27-06:00"
   },
   "winback": {
    "nombre": "Recontacto de Clientes",
@@ -77,13 +77,13 @@
    "archivos": [
     {
      "f": "wb_fac.json.gz",
-     "bytes": 506126,
-     "sha": "d2b4b8a53046"
+     "bytes": 506125,
+     "sha": "090255bef04f"
     },
     {
      "f": "wb_pot.json.gz",
-     "bytes": 346382,
-     "sha": "ccbd0f821b2b"
+     "bytes": 346383,
+     "sha": "f0d92622657f"
     },
     {
      "f": "wb_may.json.gz",
@@ -92,21 +92,21 @@
     },
     {
      "f": "wb_task.json.gz",
-     "bytes": 179583,
-     "sha": "fe5c8ff0e62b"
+     "bytes": 179585,
+     "sha": "03cdb354d93f"
     },
     {
      "f": "wb_call.json.gz",
      "bytes": 5929,
-     "sha": "ce981e93796f"
+     "sha": "f0fc77b1ab6d"
     },
     {
      "f": "wb_deal.json.gz",
      "bytes": 212254,
-     "sha": "516b5e1772d1"
+     "sha": "bf1e928d9598"
     }
    ],
-   "corte": "2026-11-25T06:48:33-06:00"
+   "corte": "2026-11-25T07:48:27-06:00"
   },
   "cashback": {
    "nombre": "Cashback",
@@ -135,15 +135,15 @@
     {
      "f": "facturas_2026-11.json.gz",
      "bytes": 31709,
-     "sha": "ca27101d24f4"
+     "sha": "2e99830b89f2"
     },
     {
      "f": "cashback.json.gz",
-     "bytes": 48185,
-     "sha": "d084c5e37875"
+     "bytes": 48182,
+     "sha": "0215621ea647"
     }
    ],
-   "corte": "2026-11-25T06:48:33-06:00"
+   "corte": "2026-11-25T07:48:27-06:00"
   }
  }
 }
